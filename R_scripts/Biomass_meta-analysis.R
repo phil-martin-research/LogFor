@@ -1,7 +1,19 @@
+#######################################################################################
+#Script for meta-analysis of changes in aboveground biomass with logging###############
+#and plots for paper###################################################################
+#######################################################################################
+
+#name: Phil Martin
+#date:22/07/2013
+
 #open packages
 library(RODBC)
 library(ggplot2)
 library(metafor)
+
+###########################################################################################
+#Organise data before analysis#############################################################
+###########################################################################################
 
 #connect to database
 log <- odbcConnect("Logging")
@@ -13,11 +25,9 @@ head(AGB)
 colnames(AGB)<-c("Study","Site","Age","Method","Vol","Type","MU","VU","SSU","ML","VL","SSL","Vtype","Scale")
 
 #recalculate SDs
-
 #unlogged
 AGB$SDU<-ifelse(AGB$Vtype=="SE",AGB$VU*sqrt(AGB$SSU),AGB$VU)
 AGB$SDU<-ifelse(AGB$Vtype=="CI",(AGB$VU/1.96)*sqrt(AGB$SSU),AGB$SDU)
-
 #logged
 AGB$SDL<-ifelse(AGB$Vtype=="SE",AGB$VL*sqrt(AGB$SSL),AGB$VL)
 AGB$SDL<-ifelse(AGB$Vtype=="CI",(AGB$VL/1.96)*sqrt(AGB$SSL),AGB$SDL)
@@ -29,23 +39,17 @@ AGB<-subset(AGB,Age!=18)
 #subset data to remove those without vol
 AGB_vol<-subset(AGB,Vol>0)
 
+###########################################################################################
+####Carry out meta-analysis################################################################
+###########################################################################################
+
 #calculate effect sizes
-
-#standardised mean difference
-SMD<-escalc(data=AGB,measure="SMD",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
-head(SMD)
-
-
-#and log ratio
+#log ratio
 ROM<-escalc(data=AGB,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
-ROM
 
-
-#this runs a random effects meta-analysis for log ratio data
+#runs a random effects meta-analysis for log ratio data
 ROM.ma<-rma.uni(yi,vi,method="REML",data=ROM)
 summary(ROM.ma)
-
-plot(AGB$Scale,ROM$yi)
 
 #forrest plot of this
 theme_set(theme_bw(base_size=26))
@@ -56,34 +60,20 @@ plot1<-ggplot(data=forrest_data,aes(x=Study2,y=exp(ES)-1,ymax=exp(ES+(1.96*SE))-
 plot2<-plot1+coord_flip()+geom_hline(aes(x=0), lty=2,size=1)
 plot3<-plot2+xlab("Study")+ylab("Proportional change")+scale_colour_manual(values=c("grey","black"))
 plot3+theme(legend.position="none")+scale_size_continuous(range=c(1,4))
-setwd("C:/Users/Phil/Documents/My Dropbox/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/")
+setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("Forrest_BM.jpg",height=8,width=12,dpi=300)
 
-
-forest.rma(ROM.ma)
-funnel.rma(ROM.ma)
-
-ggplot(data=forrest_data,aes(x=ES,y=SE))+geom_point(size=1)
-
-#cumulative meta-analysis
+#cumulative meta-analysis- organise data
 order1<-order(sort(ROM.ma$vi))
-order1
 cum_meta<-cumul(ROM.ma,order=order(sort(ROM.ma$vi)))
-cum_meta
-cum_data<-data.frame(estimate=as.numeric(cum_meta$estimate),ci.ub=cum_meta$ci.ub,ci.lb=cum_meta$ci.lb,order=as.numeric(seq(1,23)))
-str(cum_data)
-plot(cum_data$order,cum_data$estimate)
+cum_data<-data.frame(estimate=as.numeric(cum_meta$estimate),ci.ub=cum_meta$ci.ub,ci.lb=cum_meta$ci.lb,order=as.numeric(seq(1,27)))
 
 #plot cumulative meta-analysis
 theme_set(theme_bw(base_size=26))
 cum_plot<-ggplot(cum_data,aes(x=-order,y=exp(estimate)-1,ymax=exp(ci.ub)-1,ymin=exp(ci.lb)-1))+geom_ribbon(alpha=0.5)
-cum_plot+ylab("Proportional change in biomass following logging")+coord_flip()+xlab("Number of studies")
-
-
+cum_plot+ylab("Proportional change in biomass following logging")+coord_flip()+xlab("Number of studies")+geom_line(aes(x=-order,y=exp(estimate)-1))
 
 #look at age and method as a covariate
-ggplot(ROM,aes(x=Age,y=yi))+geom_point(size=4,shape=1)
-
 ROM.ma1<-rma.uni(yi,vi,mods=~Age*Method+Scale,method="REML",data=ROM)
 ROM.ma2<-rma.uni(yi,vi,mods=~Age+Method,method="REML",data=ROM)
 ROM.ma3<-rma.uni(yi,vi,mods=~Method,method="REML",data=ROM)
@@ -101,7 +91,6 @@ a+coord_flip()+geom_hline(x=0,lty=2)+ylab("Proportional change after logging")
 setwd("C:/Users/Phil/Documents/My Dropbox/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/")
 ggsave("Method.jpeg",height=8,width=12,dpi=300)
 
-
 #log ratio of results with volume
 ROM2<-escalc(data=AGB_vol,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
 head(ROM2)
@@ -114,23 +103,9 @@ Model5<-rma.uni(yi,vi,mods=~I(Vol/MU)+Age,method="ML",data=ROM2)
 Model6<-rma.uni(yi,vi,mods=~I(Vol/MU)+Scale,method="ML",data=ROM2)
 Model7<-rma.uni(yi,vi,mods=~I(Vol/MU),method="ML",data=ROM2)
 
-plot(Model6)
-
-
-Model2
-Model3
-Model4
-Model5
-
 summary(Model7)
 newpreds<-expand.grid(Vol=seq(0.019,0.47,0.001),Age=seq(0,12,.1))
-newpreds$preds
 newpreds$preds<--0.0666+(-1.3322*newpreds$Vol)+(-0.0566*newpreds$Age)
-
-ggplot(ROM2,aes(x=Age,y=yi))+geom_point()
-
-
-?predict.rma
 
 summary(Model4)
 plot(fitted.rma(Model3),residuals.rma(Model3))

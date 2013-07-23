@@ -74,22 +74,30 @@ cum_plot<-ggplot(cum_data,aes(x=-order,y=exp(estimate)-1,ymax=exp(ci.ub)-1,ymin=
 cum_plot+ylab("Proportional change in biomass following logging")+coord_flip()+xlab("Number of studies")+geom_line(aes(x=-order,y=exp(estimate)-1))
 
 #look at age and method as a covariate
-ROM.ma1<-rma.uni(yi,vi,mods=~Age*Method+Scale,method="REML",data=ROM)
-ROM.ma2<-rma.uni(yi,vi,mods=~Age+Method,method="REML",data=ROM)
-ROM.ma3<-rma.uni(yi,vi,mods=~Method,method="REML",data=ROM)
-summary(ROM.ma3)
+ROM.ma1<-rma.uni(yi,vi,mods=~Age*Method,method="ML",data=ROM)
+ROM.ma2<-rma.uni(yi,vi,mods=~Age+Method,method="ML",data=ROM)
+ROM.ma3<-rma.uni(yi,vi,mods=~Method,method="ML",data=ROM)
+
+#test which model is the most parsimonious
+AIC(ROM.ma1)
+AIC(ROM.ma2)
+AIC(ROM.ma3)
+
+#looks like it's model 3, let's recalculate it using REML
+#so there are non-biased estimates of the covariates
+ROM.ma3<-rma.uni(yi,vi,mods=~Method,method="REML",measure="ROM",data=ROM)
 
 #put into a dataframe
-str(Model1)
-Methods<-data.frame(Mean=c(-0.5696,-0.5696+0.2934),SE=c(0.0858,0.1734),Method=c("Conventional","RIL"))
-
+Methods<-data.frame(coef(summary(ROM.ma3)))
+Methods$methods<-c("Conventional","RIL")
+Methods[2,1]<-Methods[2,1]+Methods[1,1]
 #plot results
-theme_set(theme_bw(base_size=26))
-a<-ggplot(Methods,aes(x=Method,y=exp(Mean)-1,ymin=exp(Mean-(1.96*SE))-1,ymax=exp(Mean+(1.96*SE))-1))+geom_pointrange(size=1)
-a+coord_flip()+geom_hline(x=0,lty=2)+ylab("Proportional change after logging")
-
-setwd("C:/Users/Phil/Documents/My Dropbox/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/")
-ggsave("Method.jpeg",height=8,width=12,dpi=300)
+theme_set(theme_bw(base_size=26)
+a<-ggplot(Methods,aes(x=methods,y=exp(estimate)-1,ymin=exp(estimate-(se*1.96))-1,ymax=exp(estimate+(se*1.96))-1))+geom_pointrange(size=2)
+b<-a+coord_flip()+geom_hline(x=0,lty=2,size=2)+ylab("Proportional change after logging")+xlab("Methods")
+b+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1,colour="black",fill=NA))
+setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
+ggsave("RIL_Conv.jpeg",height=8,width=12,dpi=300)
 
 #log ratio of results with volume
 ROM2<-escalc(data=AGB_vol,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
@@ -100,10 +108,12 @@ Model2<-rma.uni(yi,vi,mods=~I(Vol/MU)*Method+I(Vol/MU)*Age+Scale,method="ML",dat
 Model3<-rma.uni(yi,vi,mods=~I(Vol/MU)+Method+I(Vol/MU)*Age,method="ML",data=ROM2)
 Model4<-rma.uni(yi,vi,mods=~I(Vol/MU)*Age,method="ML",data=ROM2)
 Model5<-rma.uni(yi,vi,mods=~I(Vol/MU)+Age,method="ML",data=ROM2)
-Model6<-rma.uni(yi,vi,mods=~I(Vol/MU)+Scale,method="ML",data=ROM2)
+Model6<-rma.uni(yi,vi,mods=~I(Vol/MU)*Scale,method="ML",data=ROM2)
 Model7<-rma.uni(yi,vi,mods=~I(Vol/MU),method="ML",data=ROM2)
 
+
 summary(Model7)
+
 newpreds<-expand.grid(Vol=seq(0.019,0.47,0.001),Age=seq(0,12,.1))
 newpreds$preds<--0.0666+(-1.3322*newpreds$Vol)+(-0.0566*newpreds$Age)
 
@@ -124,7 +134,7 @@ summary(Model5)
 #create dataframe for predictions
 head(ROM2)
 range(ROM2$Vol/ROM2$MU)
-preds<-predict.rma(Model5,newmods=seq(0.019,0.47,0.001))
+preds<-predict.rma(Model7,newmods=seq(0.019,0.47,0.001))
 preds2<-data.frame(preds=preds$pred,se=preds$se,Vol=seq(0.019,0.47,0.001),lower=preds$ci.lb,upper=preds$ci.ub)
 
 all<-data.frame(yi=ROM2$yi,vi=ROM2$vi,Vol=ROM2$Vol/ROM2$MU,preds=(predict.rma(Model3)$pred),upper=(predict.rma(Model3)$ci.ub),lower=(predict.rma(Model3)$ci.lb),Method=ROM2$Method)
@@ -132,9 +142,10 @@ all<-data.frame(yi=ROM2$yi,vi=ROM2$vi,Vol=ROM2$Vol/ROM2$MU,preds=(predict.rma(Mo
 theme_set(theme_bw(base_size=20))
 vol_plot<-ggplot(data=all)
 vol_plot2<-vol_plot
-vol_plot3<-vol_plot2+geom_line(data=preds2,aes(x=Vol,y=exp(preds)-1),size=1)+theme(legend.position="none")
+vol_plot3<-vol_plot2+geom_line(data=preds2,aes(x=Vol,y=exp(preds)-1),size=1.5)+theme(legend.position="none")
 vol_plot3
-vol_plot4<-vol_plot3+ylab("Change in biomass following logging")+geom_point(shape=16,aes(x=Vol,y=exp(yi)-1,colour=Method,size=1/vi))
-vol_plot4+scale_size_continuous(range=c(3,8))+xlab("Volume of wood logged/Unlogged biomass")+geom_hline(y=0,lty=2)
-setwd("C:/Users/Phil/Documents/My Dropbox/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/")
-ggsave("Prop_volume.jpg",height=8,width=12,dpi=600)
+vol_plot4<-vol_plot3+ylab("Change in biomass \nfollowing logging")+geom_point(shape=16,aes(x=Vol,y=exp(yi)-1,colour=Method,size=1/vi))
+vol_plot5<-vol_plot4+scale_size_continuous(range=c(5,10))+xlab("Volume of wood logged/Unlogged biomass")+geom_hline(y=0,lty=2,size=2)
+vol_plot5+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
+setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
+ggsave("Prop_volume.jpeg",height=8,width=12,dpi=600)

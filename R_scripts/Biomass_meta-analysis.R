@@ -97,7 +97,7 @@ Methods<-data.frame(coef(summary(ROM.ma3)))
 Methods$methods<-c("Conventional","RIL")
 Methods[2,1]<-Methods[2,1]+Methods[1,1]
 #plot results
-theme_set(theme_bw(base_size=26)
+theme_set(theme_bw(base_size=26))
 a<-ggplot(Methods,aes(x=methods,y=exp(estimate)-1,ymin=exp(estimate-(se*1.96))-1,ymax=exp(estimate+(se*1.96))-1))+geom_pointrange(size=2)
 b<-a+coord_flip()+geom_hline(x=0,lty=2,size=2)+ylab("Proportional change after logging")+xlab("Methods")
 b+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1,colour="black",fill=NA))
@@ -109,10 +109,16 @@ ROM2<-escalc(data=AGB_vol,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,
 head(ROM2)
 
 #look at proportional volume change
-Model1<-rma.uni(yi,vi,mods=~I(Vol/MU)*Method,method="ML",data=ROM2)
-Model2<-rma.uni(yi,vi,mods=~I(Vol/MU)+Method,method="ML",data=ROM2)
-Model3<-rma.uni(yi,vi,mods=~I(Vol/MU),method="ML",data=ROM2)
+Model1<-rma.uni(yi,vi,mods=~I(Vol/MU)*Method+MU,method="ML",data=ROM2)
+Model1
+Model2<-rma.uni(yi,vi,mods=~I(Vol/MU)+Method+MU,method="ML",data=ROM2)
+summary(Model2)
+Model3<-rma.uni(yi,vi,mods=~I(Vol/MU)+MU,method="ML",data=ROM2)
+Model3
+Model4<-rma.uni(yi,vi,mods=~I(Vol/MU),method="ML",data=ROM2)
+Model4
 
+plot(ROM2$MU,ROM2$yi)
 AIC(Model1)
 AIC(Model2)
 AIC(Model3)

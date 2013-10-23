@@ -19,7 +19,7 @@ Loc$Cont<-ifelse(Loc$Long>=-30&Loc$Long<=60,"Africa",Loc$Cont)
 Loc$Cont<-ifelse(Loc$Long>60,"SE Asia",Loc$Cont)
 Loc$Cont<-as.factor(Loc$Cont)
 
-?tapply
+tapply(Loc2$Vol,Loc2$Cont,mean)
 
 
 

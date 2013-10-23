@@ -4,10 +4,12 @@
 #######################################################################################
 
 #name: Phil Martin
-#date:16/09/2013
+#date:23/10/2013
+
+#clear objects
+rm(list=ls())
 
 #open packages
-library(RODBC)
 library(ggplot2)
 library(metafor)
 library(GGally)
@@ -18,33 +20,22 @@ library(multcomp)
 #Organise data before analysis#############################################################
 ###########################################################################################
 
-#connect to database
-log <- odbcConnect("Logging")
-sqlTables(log)
+#try new mixed effects meta-analysis
 
-#import data
-AGB<- sqlFetch(log, "AGB query")
-head(AGB)
-colnames(AGB)<-c("Study","Site","Age","Method","Vol","Type","MU","VU","SSU","ML","VL","SSL","Vtype","Scale","Allom","Region")
+setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
+
+AGB<-read.csv("Logged_AGB.csv")
 
 #recalculate SDs
 #unlogged
-AGB$SDU<-ifelse(AGB$Vtype=="SE",AGB$VU*sqrt(AGB$SSU),AGB$VU)
-AGB$SDU<-ifelse(AGB$Vtype=="CI",(AGB$VU/1.96)*sqrt(AGB$SSU),AGB$SDU)
+AGB$SDU<-ifelse(AGB$VarT=="SE",AGB$VU*sqrt(AGB$SSU),AGB$VU)
+AGB$SDU<-ifelse(AGB$VarT=="CI",(AGB$VU/1.96)*sqrt(AGB$SSU),AGB$SDU)
 #logged
-AGB$SDL<-ifelse(AGB$Vtype=="SE",AGB$VL*sqrt(AGB$SSL),AGB$VL)
-AGB$SDL<-ifelse(AGB$Vtype=="CI",(AGB$VL/1.96)*sqrt(AGB$SSL),AGB$SDL)
+AGB$SDL<-ifelse(AGB$VarT=="SE",AGB$VL*sqrt(AGB$SSL),AGB$VL)
+AGB$SDL<-ifelse(AGB$VarT=="CI",(AGB$VL/1.96)*sqrt(AGB$SSL),AGB$SDL)
 head(AGB)
-
-#remove pseudoreplication of Berry study
+AGB$N_Logged2<-as.factor(AGB$N_Logged)
 AGB<-subset(AGB,Age!=18)
-
-#impute missing standard deviation
-AGB2<-subset(AGB,AGB$SDU>0)
-head(AGB2)
-Imp_U<-(sum(AGB2$SDU))/(sum(AGB2$MU))
-Imp_L<-(sum(AGB2$SDL))/(sum(AGB2$ML))
-
 
 #subset data to remove those without vol
 AGB_vol<-subset(AGB,Vol>0)
@@ -58,69 +49,126 @@ AGB_vol<-subset(AGB,Vol>0)
 ROM<-escalc(data=AGB,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
 
 #runs a random effects meta-analysis for log ratio data
-ROM.ma<-rma.uni(yi,vi,method="REML",data=ROM)
-summary(ROM.ma)
+ME_summary<-rma.mv(yi,vi,random=~(1|ID),method="REML",data=ROM)
+summary(ME_summary)
 
 #forrest plot of this
 theme_set(theme_bw(base_size=10))
-forrest_data<-rbind(data.frame(ES=ROM.ma$yi,SE=sqrt(ROM.ma$vi),Type="Site",Study=AGB$Site),data.frame(ES=ROM.ma$b,SE=ROM.ma$se,Type="Summary",Study="Summary"))
+forrest_data<-rbind(data.frame(ES=ME_summary$yi,SE=sqrt(ME_summary$vi),Type="Site",Study=AGB$Site),data.frame(ES=ME_summary$b,SE=ME_summary$se,Type="Summary",Study="Summary"))
 forrest_data$Study2<-factor(forrest_data$Study, levels=rev(levels(forrest_data$Study)) )
 levels(forrest_data$Study2)
 plot1<-ggplot(data=forrest_data,aes(x=Study2,y=exp(ES)-1,ymax=exp(ES+(1.96*SE))-1,ymin=exp(ES-(1.96*SE))-1,size=(1/SE)/4,colour=factor(Type)))+geom_pointrange(shape=15)
 plot2<-plot1+coord_flip()+geom_hline(aes(x=0), lty=2,size=1)
-plot3<-plot2+xlab("Study")+ylab("Proportional change")+scale_colour_manual(values=c("grey","black"))
-plot3+theme(legend.position="none")+scale_size_continuous(range=c(0.5,2))+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
+plot3<-plot2+xlab("Site")+ylab("Proportional change")+scale_colour_manual(values=c("grey","black"))
+plot3+theme(legend.position="none")+scale_size_continuous(range=c(0.5,1.5))+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
 setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
-ggsave("Forrest_BM.pdf",height=4,width=6,dpi=1200)
+ggsave("Forest_BM.pdf",height=6,width=6,dpi=1200)
 
 ##################################################################################
-##analysis of how effects on biomass vary by region, method and age###############
+##analysis of how effects ########################################################
+#on biomass vary by region, method, age and number of times logged################
 ##################################################################################
 
 #compare models with region and method as covariates
-model0<-rma(yi,vi,mods=~1,method="ML",data=ROM)
-model1<-rma(yi,vi,mods=~Region-1,method="ML",data=ROM)
-model2<-rma.uni(yi,vi,mods=~Method-1,method="ML",measure="ROM",data=ROM)
-model3<-rma.uni(yi,vi,mods=~Age,method="ML",measure="ROM",data=ROM)
+model0<-rma.mv(yi,vi,mods=~1,random=~(1|ID),method="ML",data=ROM)
+model1<-rma.mv(yi,vi,mods=~Region-1,random=~(1|ID),method="ML",data=ROM)
+model2<-rma.mv(yi,vi,mods=~Method-1,random=~(1|ID),method="ML",data=ROM)
+model3<-rma.mv(yi,vi,mods=~Age,random=~(1|ID),method="ML",data=ROM)
+model4<-rma.mv(yi,vi,mods=~N_Logged2,random=~(1|ID),method="ML",data=ROM)
+model5<-rma.mv(yi,vi,mods=~N_Logged2-1+Region-1,random=~(1|ID),method="ML",data=ROM)
+model6<-rma.mv(yi,vi,mods=~N_Logged2-1+Method-1,random=~(1|ID),method="ML",data=ROM)
+model7<-rma.mv(yi,vi,mods=~N_Logged2-1+Age,random=~(1|ID),method="ML",data=ROM)
 
-Model_AIC<-data.frame(AIC=c(AIC(model0),AIC(model1),AIC(model2),AIC(model3)))
-Model_AIC$model<-c("Null","Model1","Model2","Model3")
-#calculate AIC delta
-Model_AIC$delta<-Model_AIC$AIC-min(Model_AIC$AIC)
-#calculate pseudo r squared for each model
-Model_AIC$R_squared<-c(1-(model0$tau2/model0$tau2),1-(model1$tau2/model0$tau2),1-(model2$tau2/model0$tau2),1-(model3$tau2/model0$tau2))
-#drop last models with delta >7
-AIC_sel<-subset(Model_AIC,delta<=7)
+#look at which model is the best fit
+model0$fit.stats$ML[5]
+Model_AICc<-data.frame(AICc=c(model0$fit.stats$ML[5],model1$fit.stats$ML[5],model2$fit.stats$ML[5],model3$fit.stats$ML[5],model4$fit.stats$ML[5],model5$fit.stats$ML[5],model6$fit.stats$ML[5],model7$fit.stats$ML[5]))
+Model_AICc$model<-c("Null","Model1","Model2","Model3","Model4","Model5","Model6","Model7")
+
+#calculate AICc delta
+Model_AICc$delta<-Model_AICc$AIC-min(Model_AICc$AICc)
+
+#calculate pseudo r squared
+Null_dev<-logLik(model0)[1]
+Model_AICc$logLik<-c(logLik(model0)[1],logLik(model1)[1],logLik(model2)[1],logLik(model3)[1],logLik(model4)[1],logLik(model5)[1],logLik(model6)[1],logLik(model7)[1])
+Model_AICc$pseudo_R2<-(Null_dev-Model_AICc$logLik)/Null_dev
+
+#drop models with delta >7
+AICc_sel<-subset(Model_AICc,delta<=7)
 #calculate the relative likelihood of model
-AIC_sel$rel_lik<-exp((AIC_sel$AIC[1]-AIC_sel$AIC)/2)
+AICc_sel$rel_lik<-exp((AICc_sel$AIC[1]-AICc_sel$AIC)/2)
 #calculate the AICc weight
-AIC_sel$weight<-AIC_sel$rel_lik/(sum(AIC_sel$rel_lik))
+AICc_sel$weight<-AICc_sel$rel_lik/(sum(AICc_sel$rel_lik))
 #reorder sorting
-AIC_sel<-AIC_sel[order(AIC_sel$AIC),]
+AICc_sel<-AICc_sel[order(AICc_sel$AIC),]
 #put in model parameters
-AIC_sel$Vars<-c("Region","Logging method","Null","Age")
+AICc_sel$Vars<-c("No. times logged & Region","No. times logged & Logging method","No. times logged","No. times logged & Age")
+rownames(AICc_sel)<-NULL
+#output this as a table
+setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Tables")
+write.table(AICc_sel,file="AGB_without_vol.csv",sep=",")
 
-#it looks like the one including just region is best
+#now we calculate the relative importance of each 
+#first dummy coding for variables
+AICc_sel$N_logged<-c(1,1,1,1)
+AICc_sel$Region<-c(1,0,0,0)
+AICc_sel$Method<-c(0,1,0,0)
+AICc_sel$Age<-c(0,0,0,1)
+
+Importance_val<-c(sum(AICc_sel$N_logged*AICc_sel$weight),sum(AICc_sel$Region*AICc_sel$weight),
+sum(AICc_sel$Method*AICc_sel$weight),sum(AICc_sel$Age*AICc_sel$weight))
+
+Importance_AGB_no_vol<-data.frame(Variable=c("No. of times logged","Region","Method","Age"),Importance=Importance_val)
+write.csv(Importance_AGB_no_vol,file="Imp_AGB_no_vol.csv")
+
+
+#it looks like the one including region and number of times logged is best
 #so we recalculate the parameter estimates using REML
-ROM.ma1<-rma(yi,vi,mods=~Region-1,method="REML",data=ROM)
-summary(ROM.ma1)
+REML_model5<-rma(yi,vi,mods=~Region-1+N_Logged2,method="REML",data=ROM)
+summary(REML_model5)
 
-#now we can plot this
-Region<-data.frame(coef(summary(ROM.ma1)))
-Region$Region<-as.factor(c("Africa","C & S America", "SE Asia & Australasia"))
+coef(summary(REML_model5))
+
+Preds_AGB<-predict(REML_model5,addx=T)
+
+Preds_AGB2<-data.frame(Preds=Preds_AGB[1],SE=Preds_AGB[2],ci.lb=Preds_AGB[3],ci.ub=Preds_AGB[4])
+
+Preds_unique<-unique(Preds_AGB2)
+Preds_unique$Region<-c("SE Asia & Australasia","Americas","Africa","SE Asia & Australasia")
+Preds_unique$N_Logged<-c(1,1,1,2)
+
+#do model averaging
+# once logged
+Mod_av1_1<-coef(summary(model5))[1,1]*AICc_sel$weight[1]
+Mod_av2_1<-coef(summary(model6))[1,1]*AICc_sel$weight[2]
+Mod_av3_1<-coef(summary(model4))[1,1]*AICc_sel$weight[3]
+Mod_av4_1<-coef(summary(model7))[1,1]*AICc_sel$weight[4]
+
+Once_logged<-(Mod_av1_1+Mod_av2_1+Mod_av3_1+Mod_av4_1)
+
+Mod_av1_2<-coef(summary(model5))[2,1]*AICc_sel$weight[1]
+Mod_av2_2<-coef(summary(model6))[2,1]*AICc_sel$weight[2]
+Mod_av3_2<-coef(summary(model4))[2,1]*AICc_sel$weight[3]
+Mod_av4_2<-coef(summary(model7))[2,1]*AICc_sel$weight[4]
+
+Twice_logged<-(Mod_av1_2+Mod_av2_2+Mod_av3_2+Mod_av4_2)
+
+
+
+#now we can plot this - the effect of region and number of times logged
 theme_set(theme_bw(base_size=10))
-a<-ggplot(data=Region,aes(y=estimate,ymin=ci.lb,ymax=ci.ub,x=Region))+geom_pointrange(size=1)
+a<-ggplot(data=Preds_unique,aes(y=exp(pred)-1,ymin=exp(ci.lb)-1,ymax=exp(ci.ub)-1,x=Region,colour=factor(N_Logged)))+geom_pointrange(size=1,position=position_dodge(width = 0.2))
 b<-a+geom_hline(x=0,lty=2,size=1)+ylab("Proportional change after logging")+xlab("Regions")
-b+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1,colour="black",fill=NA))
+c<-b+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1,colour="black",fill=NA))
+c+scale_color_brewer(name="Number of \ntimes logged",palette="Set1")
 setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
-ggsave("Region.pdf",height=4,width=6,dpi=1200)
+ggsave("AGB_Region_N_logged.pdf",height=4,width=6,dpi=1200)
 
 #output of how logging intensity varies by region
-a<-ggplot(data=AGB_vol,aes(x=Region,y=Vol))+geom_boxplot()
+a<-ggplot(data=AGB_vol,aes(x=Region,y=Vol,fill=N_Logged2))+geom_boxplot(size=0.2)
 b<-a+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1,colour="black",fill=NA))
-b+ylab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))
+c<-b+ylab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))+scale_fill_brewer(name="Number of \ntimes logged",palette="Set1")
+c
 ggsave("Region_vol.pdf",height=4,width=6,dpi=1200)
-
 
 
 #################################################################################
@@ -132,69 +180,51 @@ ROM2<-escalc(data=AGB_vol,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,
 head(ROM2)
 
 #different models relating volume and method to post logging change
-Model0<-rma.uni(yi,vi,mods=~1,method="ML",data=ROM2)
-Model1<-rma.uni(yi,vi,mods=~I(Vol/MU)+Method,method="ML",data=ROM2)
-Model2<-rma.uni(yi,vi,mods=~~Vol+Method,method="ML",data=ROM2)
-Model3<-rma.uni(yi,vi,mods=~Vol,method="ML",data=ROM2)
-Model4<-rma.uni(yi,vi,mods=~I(Vol/MU),method="ML",data=ROM2)
-Model5<-rma.uni(yi,vi,mods=~Vol+MU,method="ML",data=ROM2)
-Model6<-rma.uni(yi,vi,mods=~MU,method="ML",data=ROM2)
-Model7<-rma.uni(yi,vi,mods=~MU+Method,method="ML",data=ROM2)
+Model0<-rma.mv(yi,vi,mods=~1,random=~(1|ID),method="ML",data=ROM2)
+Model1<-rma.mv(yi,vi,mods=~I(Vol/MU)+Method,random=~(1|ID),method="ML",data=ROM2)
+Model2<-rma.mv(yi,vi,mods=~~Vol+Method,random=~(1|ID),method="ML",data=ROM2)
+Model3<-rma.mv(yi,vi,mods=~Vol,random=~(1|ID),method="ML",data=ROM2)
+Model4<-rma.mv(yi,vi,mods=~I(Vol/MU),random=~(1|ID),method="ML",data=ROM2)
+Model5<-rma.mv(yi,vi,mods=~Vol+MU,random=~(1|ID),method="ML",data=ROM2)
+Model6<-rma.mv(yi,vi,mods=~MU,random=~(1|ID),method="ML",data=ROM2)
+Model7<-rma.mv(yi,vi,mods=~MU+Method,random=~(1|ID),method="ML",data=ROM2)
+Model8<-rma.mv(yi,vi,mods=~Vol+I(Vol^2),random=~(1|ID),method="ML",data=ROM2)
+Model9<-rma.mv(yi,vi,mods=~Vol+I(Vol^2)+MU,random=~(1|ID),method="ML",data=ROM2)
+Model10<-rma.mv(yi,vi,mods=~Vol*Method,random=~(1|ID),method="ML",data=ROM2)
+plot(fitted(Model10),resid(Model10))
 
-AIC(Model0)
-AIC(Model1)
-AIC(Model2)
-AIC(Model3)
-AIC(Model4)
-AIC(Model5)
-AIC(Model6)
-AIC(Model7)
-
-Model_AIC<-data.frame(AIC=c(AIC(Model0),AIC(Model1),AIC(Model2),AIC(Model3),AIC(Model4),AIC(Model5),AIC(Model6),AIC(Model7)))
-Model_AIC$model<-c("Null","Model1","Model2","Model3","Model4","Model5","Model6","Model7")
+Model_AICc<-data.frame(AICc=c(Model0$fit.stats$ML[5],Model1$fit.stats$ML[5],Model2$fit.stats$ML[5],Model3$fit.stats$ML[5],Model4$fit.stats$ML[5],Model5$fit.stats$ML[5],Model6$fit.stats$ML[5],Model7$fit.stats$ML[5],Model8$fit.stats$ML[5],Model9$fit.stats$ML[5]))
+Model_AICc$model<-c("Null","Model1","Model2","Model3","Model4","Model5","Model6","Model7","Model8","Model9")
 #calculate AICc delta
-Model_AIC$delta<-Model_AIC$AIC-min(Model_AIC$AIC)
+Model_AICc$delta<-Model_AICc$AIC-min(Model_AICc$AICc)
 #calculate pseudo r squared for each model
-Model_AIC$R_squared<-c(1-(Model0$tau2/Model0$tau2),1-(Model1$tau2/Model0$tau2),1-(Model2$tau2/Model0$tau2),1-(Model3$tau2/Model0$tau2),1-(Model4$tau2/Model0$tau2),1-(Model5$tau2/Model0$tau2),1-(Model6$tau2/Model0$tau2),1-(Model7$tau2/Model0$tau2))
+Null_dev<-logLik(Model0)[1]
+Model_AICc$logLik<-c(logLik(Model0)[1],logLik(Model1)[1],logLik(Model2)[1],logLik(Model3)[1],logLik(Model4)[1],logLik(Model5)[1],logLik(Model6)[1],logLik(Model7)[1],logLik(Model8)[1],logLik(Model9)[1])
+Model_AICc$pseudo_R2<-(Null_dev-Model_AICc$logLik)/Null_dev
+
 #drop last models with delta >7
-AIC_sel<-subset(Model_AIC,delta<=7)
-#calculate the realtive likelihood of model
-AIC_sel$rel_lik<-exp((AIC_sel$AIC[1]-AIC_sel$AIC)/2)
+AICc_sel<-subset(Model_AICc,delta<=7)
+#calculate the relative likelihood of model
+AICc_sel$rel_lik<-exp((AICc_sel$AICc[1]-AICc_sel$AICc)/2)
 #calculate the AICc weight
-AIC_sel$weight<-AIC_sel$rel_lik/(sum(AIC_sel$rel_lik))
+AICc_sel$weight<-AICc_sel$rel_lik/(sum(AICc_sel$rel_lik))
 #reorder sorting
-AIC_sel<-AIC_sel[order(AIC_sel$AIC),]
+AICc_sel<-AICc_sel[order(AICc_sel$AICc),]
 
-#dummy coding for variable importance
-AIC_sel$Vol<-c(1,1,1)
-AIC_sel$UM<-c(0,1,0)
-AIC_sel$Method<-c(0,0,1)
+setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Tables")
+write.csv(AICc_sel,file="AGB_vol.csv")
 
-sum(AIC_sel$Vol*AIC_sel$weight)
-sum(AIC_sel$UM*AIC_sel$weight)
-sum(AIC_sel$Method*AIC_sel$weight)
-
-          
-#model 3 is the most parsimonious      
-summary(Model3)
-
-#calculate pseudo-rsquared
-ROM.ma2<-rma.uni(yi,vi,method="ML",data=ROM2)
-summary(ROM.ma2)
-1-(deviance(Model3)/deviance(ROM.ma2))
-
-#reset model as REML to get unbiased parameter estimates
-Model5<-rma.uni(yi,vi,mods=~Vol,method="REML",data=ROM2)
-summary(Model5)
+#re-do model with REML
+Model8_reml<-rma.mv(yi,vi,mods=~Vol+I(Vol^2),random=~(1|ID),method="REML",data=ROM2)
 
 #create dataframe for predictions
-head(ROM2)
-range(ROM2$Vol)
-preds<-predict.rma(Model5,newmods=seq(8.11,179,.1))
-Vol<-seq(8.11,179,.1)
-preds2<-data.frame(preds=preds$pred,se=preds$se,Vol=Vol,lower=preds$ci.lb,upper=preds$ci.ub)
 
-all<-data.frame(yi=ROM2$yi,vi=ROM2$vi,Vol=ROM2$Vol,Method=ROM2$Method)
+all<-data.frame(yi=ROM2$yi,vi=ROM2$vi,Vol=ROM2$Vol,Method=ROM2$Method,Logged=ROM2$N_Logged,MU=ROM2$MU)
+all$preds<-(predict(Model8_reml))$pred
+all$ci.lb<-(predict(Model8_reml))$ci.lb
+all$ci.ub<-(predict(Model8_reml))$ci.ub
+plot(all$yi,all$preds)
+plot(fitted(Model8_reml),resid(Model8_reml))
 
 #plot results
 #first create x axis labels
@@ -205,18 +235,16 @@ vol_plot<-ggplot(data=all)
 vol_plot2<-vol_plot
 vol_plot3<-vol_plot2+theme(legend.position="none")
 vol_plot3
-vol_plot4<-vol_plot3+ylab("Proportional change in biomass following logging")+geom_point(shape=16,aes(x=Vol,y=exp(yi)-1,colour=Method,size=1/vi))
-vol_plot5<-vol_plot4+scale_size_continuous(range=c(5,10))+geom_line(data=preds2,aes(x=Vol,y=exp(preds)-1),size=1.5)+geom_hline(y=0,lty=2,size=1)
+vol_plot4<-vol_plot3+ylab("Proportional change in biomass following logging")+geom_point(shape=1,aes(x=Vol,y=exp(yi)-1,colour=Method,size=1/vi))
+
+vol_plot5<-vol_plot4+scale_size_continuous(range=c(5,10))+geom_line(data=all,aes(x=Vol,y=exp(preds)-1))+geom_hline(y=0,lty=2,size=1)
 vol_plot5
 vol_plot6<-vol_plot5+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
-vol_plot6+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))
+vol_plot6+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))+scale_colour_brewer(palette="Set1")
 setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("Prop_volume.pdf",height=4,width=6,dpi=1200)
 
 #plot of volume logged vs unlogged biomass
-
-exp(-0.1)-1
-
 theme_set(theme_bw(base_size=10))
 AGB_Vol<-ggplot(AGB_vol,aes(x=MU,y=Vol,colour=Region))+geom_point(size=4)
 AGB_Vol2<-AGB_Vol+ylab((expression(paste("Volume of wood logged (",m^3,ha^-1,")"))))

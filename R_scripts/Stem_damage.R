@@ -1,7 +1,8 @@
-#script to calculate scaling coeffients between different
-#measures of logging intensity and damage
-#and model damage to proportion of stems
-
+#############################################################
+#script to calculate scaling coeffients between different####
+#measures of logging intensity and damage####################
+#and model damage to proportion of stems#####################
+#############################################################
 
 #first load packages
 library(nlme)
@@ -9,31 +10,11 @@ library(ggplot2)
 library(MuMIn)
 library(lme4)
 
-
 #load data
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
 Prop_dam<-read.csv("prop_damage.csv")
 head(Prop_dam)
 colnames(Prop_dam)<-c("Study","Site_ID","Age","Method","BA_log","Prop_BA_log","Vol_log","Tree_ex_ha","Dam_tree","Dam_ha","Sev_per_tree","Severe_ha","BA_dam","Prop_ba_dam","Prop_seve_dam","Prop_dam","ID","All","Region","N_logged","Plot","Notes")
-
-
-#exploratory plots
-#volume vs number of trees logged
-ggplot(Prop_dam,aes(x=Vol_log,y=Tree_ex_ha,colour=Region,group=Region))+geom_point()+geom_smooth(se=F,method="lm")
-#Proportion damaged vs number of trees logged
-ggplot(Prop_dam,aes(x=Tree_ex_ha,y=Prop_dam,colour=Method,group=Method))+geom_point()+geom_smooth(se=F,method="lm")
-#Proportion damaged vs volume
-ggplot(Prop_dam,aes(x=Vol_log,y=Prop_dam,colour=Method,group=Method))+geom_point()+geom_smooth(se=F,method="lm")
-#Proportion severe damaged vs damaged
-ggplot(Prop_dam,aes(x=Prop_seve_dam,y=Prop_dam))+geom_point()+geom_smooth(se=F,method="lm")+scale_x_continuous(limits=c(0,1))+geom_abline()
-
-
-
-#number damaged vs proportion damaged
-ggplot(Prop_dam,aes(x=Dam_tree,y=Prop_dam))+geom_point()+geom_smooth(se=F,method="lm")
-
-#proportion BA damaged vs proportion damaged
-ggplot(Prop_dam,aes(x=Prop_ba_dam,y=Prop_dam))+geom_point()+geom_smooth(se=F,method="lm")
 
 
 #model volume as a function of number of trees logged

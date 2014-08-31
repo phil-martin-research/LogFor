@@ -25,8 +25,8 @@ library(regress.r)
 
 #try new mixed effects meta-analysis
 
-setwd("C:/Users/Phil/Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
-AGB<-read.csv("Logged_AGB_rev.csv")
+setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
+AGB<-read.csv("AGB_intens.csv")
 
 #recalculate SDs
 #unlogged
@@ -41,7 +41,7 @@ AGB<-subset(AGB,Age!=18)
 AGB_NoSafe<-subset(AGB,N_Logged<2)
 
 #subset data to remove those without vol
-AGB_vol<-subset(AGB,Vol>0)
+AGB_vol<-subset(AGB,Vol2>0)
 
 
 ###########################################################################################
@@ -53,7 +53,7 @@ AGB_vol<-subset(AGB,Vol>0)
 ROM<-escalc(data=AGB,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
 ROM
 
-setwd("C:/Users/Phil/Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
+setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
 write.csv(ROM,"AGB_studies.csv")
 
 #grain size
@@ -61,7 +61,7 @@ theme_set(theme_bw(base_size=12))
 a<-ggplot(ROM,aes(x=Plot_size,y=1/vi))+geom_point(size=4,shape=1)+scale_x_log10()+scale_y_log10()
 b<-a+xlab("grain size (ha)")+ylab("relative weight contributed\nto meta-analysis")
 b+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
-setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
+setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("AGB_grain.pdf",height=4,width=6,dpi=1200)
 
 #extent size
@@ -70,7 +70,6 @@ a<-ggplot(ROM,aes(x=Plot_size*(SSU+SSL),y=1/vi))+geom_point()+scale_x_log10()
 a
 b<-a+xlab("study extent (ha)")+ylab("relative weight contributed\nto meta-analysis")
 b+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
-setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("AGB_grain.pdf",height=4,width=6,dpi=1200)
 
 #now calculate cv based on plot size
@@ -239,13 +238,19 @@ ROM2<-escalc(data=AGB_vol,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,
 head(ROM2)
 
 #different models relating volume and method to post logging change
-Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|ID,~1|Age),method="ML",data=ROM2)
-Model1<-rma.mv(yi,vi,mods=~~Vol+Method,random=list(~1|ID,~1|Age),method="ML",data=ROM2)
-Model2<-rma.mv(yi,vi,mods=~Vol,random=list(~1|ID,~1|Age),method="ML",data=ROM2)
-Model3<-rma.mv(yi,vi,mods=~I(Vol/MU),random=list(~1|ID,~1|Age),method="ML",data=ROM2)
-Model4<-rma.mv(yi,vi,mods=~Method,random=list(~1|ID,~1|Age),method="ML",data=ROM2)
-Model5<-rma.mv(yi,vi,mods=~Vol+I(Vol^2),random=list(~1|ID,~1|Age),method="ML",data=ROM2)
-Model6<-rma.mv(yi,vi,mods=~Vol*Method,random=list(~1|ID,~1|Age),method="ML",data=ROM2)
+Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|ID),method="ML",data=ROM2)
+Model1<-rma.mv(yi,vi,mods=~~Age,random=list(~1|ID),method="ML",data=ROM2)
+Model2<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|ID),method="ML",data=ROM2)
+Model3<-rma.mv(yi,vi,mods=~Method,random=list(~1|ID),method="ML",data=ROM2)
+Model4<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|ID),method="ML",data=ROM2)
+Model5<-rma.mv(yi,vi,mods=~Vol2*Age,random=list(~1|ID),method="ML",data=ROM2)
+Model6<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method,random=list(~1|ID),method="ML",data=ROM2)
+
+
+
+AICc(Model1,Model2,Model3,Model4,Model5,Model6)
+
+
 
 Model_AICc<-data.frame(AICc=c(Model0$fit.stats$ML[5],Model1$fit.stats$ML[5],Model2$fit.stats$ML[5],Model3$fit.stats$ML[5],Model4$fit.stats$ML[5],Model5$fit.stats$ML[5],Model6$fit.stats$ML[5]))
 Model_AICc$model<-c("Null","Model1","Model2","Model3","Model4","Model5","Model6")
@@ -278,15 +283,21 @@ setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Res
 write.csv(AICc_sel,file="AGB_vol.csv")
 
 #re-do model with REML
-Model8_reml<-rma.mv(yi,vi,mods=~Vol+I(Vol^2),random=list(~1|ID,~1|Age),method="REML",data=ROM2)
+Model8_reml<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|ID),method="REML",data=ROM2)
 
 #create dataframe for predictions
-all<-data.frame(yi=ROM2$yi,vi=ROM2$vi,Vol=ROM2$Vol,Method=ROM2$Method,Logged=ROM2$N_Logged,MU=ROM2$MU)
+all<-data.frame(yi=ROM2$yi,vi=ROM2$vi,Vol=ROM2$Vol2,Method=ROM2$Method,Logged=ROM2$N_Logged,Age=ROM2$Age,MU=ROM2$MU)
 all$preds<-(predict(Model8_reml,level=0))$pred
 all$ci.lb<-(predict(Model8_reml,level=0))$ci.lb
 all$ci.ub<-(predict(Model8_reml,level=0))$ci.ub
 Vol<-seq(8.11,179,length.out=500)
-preds<-predict.rma(Model8_reml,newmods=cbind(Vol,Vol^2),addx=T)
+
+ggplot(all,aes(x=Vol,y=exp(yi)-1,colour=Method,group=Method))+geom_point()+geom_smooth(se=F,method="lm")
+ggplot(ROM2,aes(x=Trees2,y=exp(yi)-1,colour=Method,group=Method))+geom_point()+geom_smooth(se=F,method="lm")
+
+Method<-rep(c("Conventional","RIL"),times = 250)
+preds<-predict(Model8_reml,newmods=cbind(Vol2=Vol,Method=Method),addx=T)
+?predict.rma
 head(preds)
 preds
 new_preds<-data.frame(preds=preds$pred,ci.lb=preds$ci.lb,ci.ub=preds$ci.ub,Vol=Vol)

@@ -9,6 +9,7 @@ library(nlme)
 library(ggplot2)
 library(MuMIn)
 library(lme4)
+library(nlme)
 
 #load data
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
@@ -16,8 +17,10 @@ Prop_dam<-read.csv("prop_damage.csv")
 head(Prop_dam)
 colnames(Prop_dam)<-c("Study","Site_ID","Age","Method","BA_log","Prop_BA_log","Vol_log","Tree_ex_ha","Dam_tree","Dam_ha","Sev_per_tree","Severe_ha","BA_dam","Prop_ba_dam","Prop_seve_dam","Prop_dam","ID","All","Region","N_logged","Plot","Notes")
 
+################################################################
+#model of volume as a function of number of trees logged per ha#
+################################################################
 
-#model volume as a function of number of trees logged
 #create dataset with only complete cases in explanatory variables
 Prop_dam_CC<-Prop_dam[complete.cases(Prop_dam[,c(7,8)]),]
 Prop_dam_CC$Tree_corr<-Prop_dam_CC$Tree_ex_ha-mean(Prop_dam_CC$Tree_ex_ha)
@@ -25,69 +28,54 @@ str(Prop_dam_CC)
 M1<-lme(log(Vol_log)~Tree_corr+Region,random=~1|Study,Prop_dam_CC)
 
 
-plot(Prop_dam_CC$Tree_ex_ha,exp(predict(M1)))
-
-qqnorm(M1)
-
-Tree_pred1<-data.frame(Site_ID=Prop_dam$Site_ID,Tree_corr=Prop_dam$Tree_ex_ha-mean(Prop_dam_CC$Tree_ex_ha),Region=Prop_dam$Region)
-Tree_pred1<-Tree_pred1[complete.cases(Tree_pred1),]
+#look at diagnostic plots
+plot(M1)
+plot(Prop_dam_CC$Vol_log,exp(predict(M1)))
+abline(a=0,b=1)
 
 #model averaging
 ms1 <- dredge(M1,REML=F,rank =AICc,evaluate = T)
 delta7<- get.models(ms1, subset = cumsum(delta) <= 7)
 avgm <- model.avg(delta7)
 
-
+#create predictions from model
+Tree_pred1<-data.frame(Site_ID=Prop_dam$Site_ID,Tree_corr=Prop_dam$Tree_ex_ha-mean(Prop_dam_CC$Tree_ex_ha),Region=Prop_dam$Region)
+Tree_pred1<-Tree_pred1[complete.cases(Tree_pred1),]
 Tree_pred1$Pred<-exp(predict(avgm,newdata=Tree_pred1,level=0))
 
-
+#merge onto dataset of other data
 M_Damage<-merge(Prop_dam,Tree_pred1,by="Site_ID",all=T)
-
-#put in predicted volume values where there are none
+#put in predicted volume values where there are none where number of treesextracted is <25 per ha
 for (i in 1:nrow(M_Damage)){
   M_Damage$Vol_log2[i]<-ifelse(is.na(M_Damage$Vol_log[i])&M_Damage$Tree_ex_ha[i]<25,M_Damage$Pred[i],M_Damage$Vol_log[i])
 }
 
+######################################################################
+#model to predict the number of trees removed from the volume logged##
+######################################################################
 
-
-plot(M_Damage$Vol_log2,M_Damage$Prop_dam)
-
-#now predict number of trees logged using volume
 M1<-lme(log(Tree_ex_ha)~Vol_log+Region,random=~1|Study,Prop_dam_CC)
+
+#diagnostic plots
 plot(M1)
 qqnorm(M1)
-
-Tree_pred1<-data.frame(Site_ID=Prop_dam$Site_ID,Vol_log=Prop_dam$Vol_log,Region=Prop_dam$Region)
-Tree_pred1<-Tree_pred1[complete.cases(Tree_pred1),]
 
 #model averaging
 ms1 <- dredge(M1,REML=F,rank =AICc,evaluate = T)
 delta7<- get.models(ms1, subset = cumsum(delta) <= 7)
 avgm <- model.avg(delta7)
 
+
+#create dataframe for use with predictions
+Tree_pred1<-data.frame(Site_ID=Prop_dam$Site_ID,Vol_log=Prop_dam$Vol_log,Region=Prop_dam$Region)
+Tree_pred1<-Tree_pred1[complete.cases(Tree_pred1),]
 Tree_pred1$Pred<-exp(predict(avgm,newdata=Tree_pred1,level=0))
-
-
 M_Damage2<-merge(M_Damage,Tree_pred1,by="Site_ID",all=T)
 
-str(M_Damage2)
-
-#put in tree_extracted values where there are none
+#put in the number of trees extracted per ha where there are none
 for (i in 1:nrow(M_Damage2)){
   M_Damage2$Tree_ex_ha2[i]<-ifelse(is.na(M_Damage2$Tree_ex_ha[i]),M_Damage2$Pred.y[i],M_Damage2$Tree_ex_ha[i])
 }
-
-summary(M_Damage2$Tree_ex_ha2)
-
-plot(M_Damage2$Tree_ex_ha2,M_Damage2$Prop_dam)
-plot(M_Damage2$Vol_log2,M_Damage2$Prop_dam)
-
-(Prop_dam$Vol_log)
-
-ggplot(M_Damage2,aes(x=Tree_ex_ha2,y=Prop_dam,colour=Method))+geom_point()+geom_smooth(se=F, method = 'nls', formula = 'y~a*x^b')+xlim(0,20)
-
-
-ggplot(M_Damage2,aes(x=Vol_log2,y=Prop_dam,colour=Method))+geom_point()+geom_smooth(se=F, method = 'nls', formula = 'y~a*x^b')
 
 
 #now remove columns which are no use
@@ -98,41 +86,35 @@ M_Damage3<-subset(M_Damage3,Study!="Guariguata et al 2009")
 M_Damage3<-subset(M_Damage3,Prop_dam<0.6)
 M_Damage3<-M_Damage3[complete.cases(M_Damage3[,c(3,4,6)]),]
 
-head(M_Damage3)
 
-summary(M_Damage3)
+###########################################################################################################################################
 
-ggplot(M_Damage3,aes(x=Vol_log2,y=Prop_dam,colour=Method))+geom_point()+geom_smooth(se=F, method = 'nls', formula = 'y~a*x^b')
+#######################################################
+#now predict proportion of trees damaged using volume##
+#######################################################
 
+#create column for Volume squared
+M_Damage3$Vol_sq<-M_Damage3$Vol_log2^2
 
-
-#now predict proportion of trees damaged using volume
-M1<-lmer(qlogis(Prop_dam)~Vol_log2*Method+I(Vol_log2^2)*Method+(1|Study),M_Damage3,na.action="na.fail")
+M1<-lmer(qlogis(Prop_dam)~Vol_log2*Method+Vol_sq*Method+(1|Study),M_Damage3,na.action="na.fail")
 summary(M1)
 
+#diagnostic plots
+plot(M1)
 plot(plogis(fitted(M1)),resid(M1))
-qqnorm(M1)
-
-
-xyplot(qlogis(Prop_dam)~ Vol_log2|Study, data=M_Damage3, panel=function(x,y)
-{
-  panel.xyplot(x,y)
-  panel.abline(lm(y~ x), lty=1, col=4)
-},
-strip= strip.custom( par.strip.text = list(cex=0.75)))
+plot(M_Damage3$Prop_dam,plogis(fitted(M1)))
 
 
 #model averaging
-ms1 <- dredge(M1,REML=F,rank =AICc,evaluate = T,trace=T)
-ms1
+ms1 <- dredge(M1,REML=F,rank =AICc,evaluate = T,trace=T,subset=dc(Vol_log2,Vol_sq))
 delta7<- get.models(ms1, subset = cumsum(delta) <= 7)
 avgm <- model.avg(delta7,se.fit=T)
 
-
 #predict from model averaged stuff
-tapply(M_Damage2$Vol_log2,M_Damage2$Method,min)
+tapply(M_Damage3$Vol_log2,M_Damage3$Method,summary)
 
-Damage_pred<-data.frame(Vol_log2=c(seq(10,150,1),seq(5,97,1)),Method=c(rep("Conventional",141),rep("RIL",93)))
+Damage_pred<-data.frame(Vol_log2=c(seq(10,107,1),seq(5,104,1)),Method=c(rep("Conventional",98),rep("RIL",100)))
+Damage_pred$Vol_sq<-Damage_pred$Vol_log2^2
 
 
 Damage_pred2<-predict(avgm,newdata=Damage_pred,level=0,se.fit=T)

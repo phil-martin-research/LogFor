@@ -59,34 +59,23 @@ write.csv(ROM,"Richness_studies.csv")
 ############################################################
 ROM_vol<-subset(ROM,!is.na(Vol))
 ROM_vol<-subset(ROM,Vol!=-9999)
-Rich_vol<-subset(ROM_vol,Rare!="NR")
+Rich_vol<-subset(ROM_vol,!is.na(vi))
+
 
 #models of richness change including volume
 Model0_Vol<-rma.mv(yi,vi,mods=~1,random=~list(~1|Rare),method="ML",data=Rich_vol)
 Model1_Vol<-rma.mv(yi,vi,mods=~Vol,random=~list(~1|Rare),method="ML",data=Rich_vol)
-Model2_Vol<-rma.mv(yi,vi,mods=~Method,random=~list(~1|Rare),method="ML",data=Rich_vol)
-Model3_Vol<-rma.mv(yi,vi,mods=~Method+Vol,random=~list(~1|Rare),method="ML",data=Rich_vol)
+Model2_Vol<-rma.mv(yi,vi,mods=~Vol+I(Vol^2),random=~list(~1|Rare),method="ML",data=Rich_vol)
+Model3_Vol<-rma.mv(yi,vi,mods=~Method,random=~list(~1|Rare),method="ML",data=Rich_vol)
+Model4_Vol<-rma.mv(yi,vi,mods=~Method+Vol,random=~list(~1|Rare),method="ML",data=Rich_vol)
 
 
 #work out model AICc
-Model_AIC<-data.frame(AICc=c(Model0_Vol$fit.stats$ML[5],Model1_Vol$fit.stats$ML[5],Model2_Vol$fit.stats$ML[5],Model3_Vol$fit.stats$ML[5]))
+Model_AIC<-data.frame(AICc=c(Model0_Vol$fit.stats$ML[5],Model1_Vol$fit.stats$ML[5],Model2_Vol$fit.stats$ML[5],Model3_Vol$fit.stats$ML[5],Model4_Vol$fit.stats$ML[5]))
 
-Model_AIC$Vars<-c("Null","Volume",
+Model_AIC$Vars<-c("Null","Volume","Volume+Volume^2",
                    "Method","Volume+Method")
 
-
-#calculate pseudo r squared
-Null_sigma1<-Model0_Vol$sigma2[1]   
-Null_sigma2<-Model0_Vol$sigma2[2]
-
-Model_AIC$sigma1<-c(Model0_Vol$sigma2[1],Model1_Vol$sigma2[1],
-              Model2_Vol$sigma2[1],Model3_Vol$sigma2[1])
-Model_AIC$sigma2<-c(Model0_Vol$sigma2[2],Model1_Vol$sigma2[2],
-              Model2_Vol$sigma2[2],Model3_Vol$sigma2[2])
-Model_AIC$sumsigma1<-ifelse(Null_sigma1-Model_AIC$sigma1<0,0,Null_sigma1-Model_AIC$sigma1)
-Model_AIC$sumsigma2<-ifelse(Null_sigma2-Model_AIC$sigma2<0,0,Null_sigma2-Model_AIC$sigma2)
-
-Model_AIC$R_squared<-1-((Null_sigma1+Null_sigma2)-(Model_AIC$sumsigma1+Model_AIC$sumsigma2))/(Null_sigma1+Null_sigma2)
 
 #reorder from lowest to highest
 Model_AIC<-Model_AIC[order(Model_AIC$AICc),]
@@ -97,15 +86,11 @@ Model_AIC$delta<-Model_AIC$AICc-Model_AIC$AICc[1]
 Model_AIC$rel_lik<-exp((Model_AIC$AICc[1]-Model_AIC$AICc)/2)
 #calculate the AICc weight
 Model_AIC$weight<-Model_AIC$rel_lik/(sum(Model_AIC$rel_lik))
-setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Tables")
-write.table(AIC_sel,file="Rich_with_vol.csv",sep=",")
-
-#write this table to directory
-setwd("C:/Users/Phil/Documents/My Dropbox/Work/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Tables")
-write.table(AIC_sel,file="Rich_with_vol.csv",sep=",")
+setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Tables")
+write.table(Model_AIC,file="Rich_with_vol.csv",sep=",")
 
 #re-do model with REML
-Model1_reml<-rma.mv(yi,vi,mods=~Vol,random=~(1|as.factor(Age)),method="REML",data=ROM_vol)
+Model1_reml<-rma.mv(yi,vi,mods=~Vol,random=~(1|as.factor(Age)),method="REML",data=Rich_vol)
 summary(Model1_reml)
 
 #create dataframe for predictions
@@ -129,12 +114,12 @@ vol_plot<-ggplot(data=all)
 vol_plot2<-vol_plot
 vol_plot3<-vol_plot2
 vol_plot3
-vol_plot4<-vol_plot3+ylab("Proportional change in tree species richness following logging")+geom_point(shape=16,aes(x=Vol,y=exp(yi)-1,colour=Method,size=(1/vi)*5),alpha=0.5)
+vol_plot4<-vol_plot3+ylab("Proportional change in tree species richness following logging")+geom_point(shape=16,aes(x=Vol,y=exp(yi)-1,colour=Method,size=(1/vi)*5))
 
 vol_plot5<-vol_plot4+scale_size_continuous(range=c(5,10))+geom_line(data=new_preds,aes(x=Vol,y=exp(preds)-1),size=2)+geom_hline(y=0,lty=2,size=1)
 vol_plot5
 vol_plot6<-vol_plot5+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
 vol_plot7<-vol_plot6+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))+scale_colour_brewer(palette="Set1")
-rich_vol_plot<-vol_plot7+geom_line(data=new_preds,aes(y=exp(ci.lb)-1,x=Vol),lty=3,size=1)+geom_line(data=new_preds,aes(y=exp(ci.ub)-1,x=Vol),lty=3,size=1)+theme(legend.position="none")
+rich_vol_plot<-vol_plot7+geom_line(data=new_preds,aes(y=exp(ci.lb)-1,x=Vol),lty=3,size=1)+geom_line(data=new_preds,aes(y=exp(ci.ub)-1,x=Vol),lty=3,size=1)+theme(legend.position="none")+scale_colour_brewer(palette="Set1")
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("SR_volume.jpeg",height=12,width=12,dpi=1200)

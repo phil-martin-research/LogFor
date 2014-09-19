@@ -123,3 +123,8 @@ vol_plot7<-vol_plot6+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,"
 rich_vol_plot<-vol_plot7+geom_line(data=new_preds,aes(y=exp(ci.lb)-1,x=Vol),lty=3,size=1)+geom_line(data=new_preds,aes(y=exp(ci.ub)-1,x=Vol),lty=3,size=1)+theme(legend.position="none")+scale_colour_brewer(palette="Set1")
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("SR_volume.jpeg",height=12,width=12,dpi=1200)
+
+
+#create funnel plot with residuals
+
+plot(resid(Model1_reml),1/sqrt(Rich_vol$vi))

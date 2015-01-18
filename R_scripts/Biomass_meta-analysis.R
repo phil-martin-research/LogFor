@@ -30,6 +30,7 @@ AGB<-read.csv("AGB_intens.csv")
 #unlogged
 AGB$SDU<-ifelse(AGB$VarT=="SE",AGB$VU*sqrt(AGB$SSU),AGB$VU)
 AGB$SDU<-ifelse(AGB$VarT=="CI",(AGB$VU/1.96)*sqrt(AGB$SSU),AGB$SDU)
+
 #logged
 AGB$SDL<-ifelse(AGB$VarT=="SE",AGB$VL*sqrt(AGB$SSL),AGB$VL)
 AGB$SDL<-ifelse(AGB$VarT=="CI",(AGB$VL/1.96)*sqrt(AGB$SSL),AGB$SDL)
@@ -117,17 +118,17 @@ head(ROM2)
 
 #different models relating volume and method to post logging change
 Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|ID),method="ML",data=ROM2)
-Model1<-rma.mv(yi,vi,mods=~~Age,random=list(~1|ID),method="ML",data=ROM2)
-Model2<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|ID),method="ML",data=ROM2)
-Model3<-rma.mv(yi,vi,mods=~Method,random=list(~1|ID),method="ML",data=ROM2)
+Model1<-rma.mv(yi,vi,mods=~~Age-1,random=list(~1|ID),method="ML",data=ROM2)
+Model2<-rma.mv(yi,vi,mods=~Vol2-1,random=list(~1|ID),method="ML",data=ROM2)
+Model3<-rma.mv(yi,vi,mods=~Method-1,random=list(~1|ID),method="ML",data=ROM2)
 Model4<-rma.mv(yi,vi,mods=~Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM2)
-Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method,random=list(~1|ID),method="ML",data=ROM2)
-Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2),random=list(~1|ID),method="ML",data=ROM2)
-Model7<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2)+I(Vol2^3),random=list(~1|ID),method="ML",data=ROM2)
-Model8<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method,random=list(~1|ID),method="ML",data=ROM2)
-Model9<-rma.mv(yi,vi,mods=~Vol2*Age,random=list(~1|ID),method="ML",data=ROM2)
-Model10<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2),random=list(~1|ID),method="ML",data=ROM2)
-Model11<-rma.mv(yi,vi,mods=~Vol2*Region,random=list(~1|ID),method="ML",data=ROM2)
+Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM2)
+Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM2)
+Model7<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2)+I(Vol2^3)-1,random=list(~1|ID),method="ML",data=ROM2)
+Model8<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method-1,random=list(~1|ID),method="ML",data=ROM2)
+Model9<-rma.mv(yi,vi,mods=~Vol2*Age-1,random=list(~1|ID),method="ML",data=ROM2)
+Model10<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM2)
+Model11<-rma.mv(yi,vi,mods=~Vol2*Region-1,random=list(~1|ID),method="ML",data=ROM2)
 
 
 
@@ -172,13 +173,28 @@ all<-data.frame(yi=ROM2$yi,vi=ROM2$vi,Vol=ROM2$Vol2,Method=ROM2$Method,Age=ROM2$
 all$preds<-(predict(Model8_reml,level=0))$pred
 all$ci.lb<-(predict(Model8_reml,level=0))$ci.lb
 all$ci.ub<-(predict(Model8_reml,level=0))$ci.ub
-Vol<-seq(8.11,179,length.out=500)
+Vol<-seq(0,179,length.out=500)
 
 
 
 Method<-rep(c("Conventional","RIL"),times = 250)
-preds<-predict(Model8_reml,addx=T,intercept=0)
-new_preds<-data.frame(preds=preds$pred,ci.lb=preds$ci.lb,ci.ub=preds$ci.ub,Vol=all$Vol,Method=all$Method)
+new_df<-data.frame(Vol,Method)
+
+preds<-predict(Model8_reml,newmods=cbind(c(0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,
+                                         0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180),
+                                         c("Conventional","Conventional","Conventional","Conventional","Conventional",
+                                           "Conventional","Conventional","Conventional","Conventional","Conventional",
+                                           "Conventional","Conventional","Conventional","Conventional","Conventional",
+                                           "Conventional","Conventional","Conventional","Conventional",
+                                           "RIL","RIL","RIL","RIL","RIL","RIL","RIL","RIL","RIL","RIL","RIL",
+                                           "RIL","RIL","RIL","RIL","RIL","RIL","RIL","RIL")))
+                                           
+                                           
+                                           
+  
+  seq(0,179,length.out=500),rep(c("Conventional","RIL"),times = 250)),intercept=0)
+new_preds<-data.frame(preds=preds$pred,ci.lb=preds$ci.lb,ci.ub=preds$ci.ub,Vol=preds$X.Vol2,Method=all$Method)
+
 
 #plot results
 #first create x axis labels

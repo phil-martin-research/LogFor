@@ -1,8 +1,9 @@
 #############################################################
 #script to calculate scaling coeffients between different####
 #measures of logging intensity and damage####################
-#and model damage to proportion of stems#####################
 #############################################################
+
+rm(list=ls())
 
 #first load packages
 library(nlme)
@@ -27,6 +28,7 @@ Prop_dam_CC$Tree_corr<-Prop_dam_CC$Tree_ex_ha-mean(Prop_dam_CC$Tree_ex_ha)
 str(Prop_dam_CC)
 Prop_dam_CC<-subset(Prop_dam_CC,Tree_ex_ha<20)
 M1<-lm(Vol_log~Tree_corr*Region-1,Prop_dam_CC,na.action="na.fail")
+summary(M1)
 
 #look at diagnostic plots
 plot(M1)
@@ -56,19 +58,24 @@ ggsave("Volume_trees.jpeg",height=6,width=8,dpi=1200)
 
 
 #merge onto dataset of other data
-M_Damage<-merge(Prop_dam,Tree_pred1,by="Site_ID",all=T)
+Tree_pred2<-data.frame(Site_ID=Prop_dam$Site_ID,Tree_corr=Prop_dam$Tree_ex_ha-mean(Prop_dam_CC$Tree_ex_ha),Region=Prop_dam$Region)
+Tree_pred2<-Tree_pred2[complete.cases(Tree_pred2),]
+Tree_pred2$Pred<-(predict(M1,newdata=Tree_pred2,level=0))
+M_Damage<-merge(Prop_dam,Tree_pred2,by="Site_ID",all=T)
 head(M_Damage)
 #put in predicted volume values where there are none where number of treesextracted is <25 per ha
 M_Damage$Vol_log2<-NULL
 for (i in 1:nrow(M_Damage)){
-  M_Damage$Vol_log2[i]<-ifelse(is.na(M_Damage$Vol_log.x[i])&M_Damage$Tree_ex_ha[i]<25,M_Damage$Pred[i],M_Damage$Vol_log.x[i])
+  M_Damage$Vol_log2[i]<-ifelse(is.na(M_Damage$Vol_log[i])&M_Damage$Tree_ex_ha[i]<25,M_Damage$Pred[i],M_Damage$Vol_log[i])
 }
 
 ######################################################################
 #model to predict the number of trees removed from the volume logged##
 ######################################################################
 
-M1<-lme(log(Tree_ex_ha)~Vol_log*Region,random=~1|Study,Prop_dam_CC)
+M1<-lme(Tree_ex_ha~Vol_log*Region,random=~1|Study,Prop_dam_CC)
+
+r.squaredGLMM(M1)
 
 #diagnostic plots
 plot(M1)
@@ -83,15 +90,14 @@ avgm <- model.avg(delta7)
 #create dataframe for use with predictions
 Tree_pred1<-data.frame(Site_ID=Prop_dam$Site_ID,Vol_log=Prop_dam$Vol_log,Region=Prop_dam$Region)
 Tree_pred1<-Tree_pred1[complete.cases(Tree_pred1),]
-Tree_pred1$Pred<-exp(predict(avgm,newdata=Tree_pred1,level=0))
+Tree_pred1$Pred<-exp(predict(M1,newdata=Tree_pred1,level=0))
 M_Damage2<-merge(M_Damage,Tree_pred1,by="Site_ID",all=T)
+
 
 #put in the number of trees extracted per ha where there are none
 for (i in 1:nrow(M_Damage2)){
-  M_Damage2$Tree_ex_ha2[i]<-ifelse(is.na(M_Damage2$Tree_ex_ha[i]),M_Damage2$Pred.y[i],M_Damage2$Tree_ex_ha[i])
+  M_Damage2$Tree_ex_ha2[i]<-ifelse(is.na(M_Damage2$Tree_ex_ha[i])&M_Damage2$Vol_log.x[i]<150,M_Damage2$Pred.y[i],M_Damage2$Tree_ex_ha[i])
 }
-
-
 
 
 ################################################################################################
@@ -100,6 +106,7 @@ for (i in 1:nrow(M_Damage2)){
 Prop_dam_CC2<-subset(Prop_dam_CC,!is.na(Dam_ha))
 Prop_dam_CC2$log_ha<-log(Prop_dam_CC2$Dam_ha)
 M1<-lm(qlogis(Prop_dam)~log_ha,data=Prop_dam_CC2)
+summary(M1)
 log_ha<-data.frame(log_ha=log(Prop_dam_CC2$Dam_ha))
 Prop_dam_CC2$Pred<-plogis(predict(M1,newdata=log_ha))
 M_Damage3<-merge(M_Damage2,Prop_dam_CC2,all=T)
@@ -109,7 +116,18 @@ for (i in 1:nrow(M_Damage3)){
   M_Damage3$Prop_dam2[i]<-ifelse(is.na(M_Damage3$Prop_dam[i]),M_Damage3$Pred[i],M_Damage3$Prop_dam[i])
 }
 
-head(M_Damage3)
+
+Preds<-data.frame(Dam_ha=exp(log_ha),Pred=plogis(predict(M1,newdata=log_ha)))
+colnames(Preds)<-c("Dam_ha","Pred")
+head(Preds)
+
+#make a plot of the relationship
+Scaling_plot1<-ggplot(M_Damage3,aes(x=Dam_ha,y=Prop_dam))+geom_point(size=3,shape=1)+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
+Scaling_plot2<-Scaling_plot1+xlab(expression(paste("Number of trees damaged ",ha^-1)))+ylab("Proportion of residual trees damaged")
+Scaling_plot2+geom_line(data=Preds,aes(x=Dam_ha,y=Pred))
+setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
+ggsave("Volume_trees.jpeg",height=6,width=8,dpi=1200)
+
 
 #now remove columns which are no use
 keeps <- c("Study","Site_ID","Vol_log2","Tree_ex_ha2","Method","Prop_dam","Prop_dam2","Prop_seve_dam","Region")

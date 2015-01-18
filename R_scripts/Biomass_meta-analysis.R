@@ -118,7 +118,7 @@ head(ROM2)
 #different models relating volume and method to post logging change
 Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|ID),method="ML",data=ROM2)
 Model1<-rma.mv(yi,vi,mods=~~Age,random=list(~1|ID),method="ML",data=ROM2)
-Model2<-rma.mv(yi,vi,mods=~Vol2-1,random=list(~1|ID),method="ML",data=ROM2)
+Model2<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|ID),method="ML",data=ROM2)
 Model3<-rma.mv(yi,vi,mods=~Method,random=list(~1|ID),method="ML",data=ROM2)
 Model4<-rma.mv(yi,vi,mods=~Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM2)
 Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method,random=list(~1|ID),method="ML",data=ROM2)
@@ -126,19 +126,14 @@ Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2),random=list(~1|ID),method="ML",data=RO
 Model7<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2)+I(Vol2^3),random=list(~1|ID),method="ML",data=ROM2)
 Model8<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method,random=list(~1|ID),method="ML",data=ROM2)
 Model9<-rma.mv(yi,vi,mods=~Vol2*Age,random=list(~1|ID),method="ML",data=ROM2)
-Model9<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|ID),method="ML",data=ROM2)
+Model10<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2),random=list(~1|ID),method="ML",data=ROM2)
+Model11<-rma.mv(yi,vi,mods=~Vol2*Region,random=list(~1|ID),method="ML",data=ROM2)
 
 
-plot(ROM2$Vol2,ROM2$yi)
 
-points(ROM2$Vol2,predict(Model4)$pred,col="red")
+Model_AICc<-data.frame(AICc=c(Model0$fit.stats$ML[5],Model1$fit.stats$ML[5],Model2$fit.stats$ML[5],Model3$fit.stats$ML[5],Model4$fit.stats$ML[5],Model5$fit.stats$ML[5],Model6$fit.stats$ML[5],Model7$fit.stats$ML[5],Model8$fit.stats$ML[5],Model9$fit.stats$ML[5],Model10$fit.stats$ML[5]))
+Model_AICc$model<-c("Null","Model1","Model2","Model3","Model4","Model5","Model6","Model7","Model8","Model9","Model10")
 
-
-plot(fitted(Model7),resid(Model7))
-
-
-Model_AICc<-data.frame(AICc=c(Model0$fit.stats$ML[5],Model1$fit.stats$ML[5],Model2$fit.stats$ML[5],Model3$fit.stats$ML[5],Model4$fit.stats$ML[5],Model5$fit.stats$ML[5],Model6$fit.stats$ML[5],Model7$fit.stats$ML[5],Model8$fit.stats$ML[5],Model9$fit.stats$ML[5]))
-Model_AICc$model<-c("Null","Model1","Model2","Model3","Model4","Model5","Model6","Model7","Model8","Model9")
 #calculate AICc delta
 Model_AICc$delta<-Model_AICc$AICc-min(Model_AICc$AICc)
 #calculate pseudo r squared for each model
@@ -148,7 +143,8 @@ Model_AICc$sigma<-c(sum(Model0$sigma2),sum(Model1$sigma2),
               sum(Model2$sigma2),sum(Model3$sigma2),
               sum(Model4$sigma2),sum(Model5$sigma2),
               sum(Model6$sigma2),sum(Model7$sigma2),
-              sum(Model8$sigma2),sum(Model9$sigma2))
+              sum(Model8$sigma2),sum(Model9$sigma2),
+              sum(Model9$sigma2))
 
 Model_AICc$R_squared<-c(Null_sigma-Model_AICc$sigma)/Null_sigma
 
@@ -200,3 +196,15 @@ biommass_vol_plot<-vol_plot7+geom_line(data=new_preds,aes(y=exp(ci.lb)-1,x=Vol,g
 biommass_vol_plot+geom_point(shape=16,aes(x=Vol,y=exp(yi)-1,colour=Method,size=1/vi),alpha=0.5)+scale_size_continuous(range=c(8,16))+ guides(colour = guide_legend(override.aes = list(size=18)))+ theme(legend.position="none")
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("Prop_volume2.jpeg",height=12,width=12,dpi=1200)
+
+#plot residuals against inverse of standard error
+
+qplot(resid(Model8_reml),1/sqrt(ROM2$vi),size=1/ROM2$vi)
+
+
+qplot(fitted(Model6),resid(Model6),size=1/ROM2$vi)
+
+plot(ROM2$Vol2,ROM2$yi)
+points(ROM2$Vol2,predict(Model4)$pred,col="red")
+
+qplot(ROM2$yi,predict(Model7)$pred,size=1/ROM2$vi)

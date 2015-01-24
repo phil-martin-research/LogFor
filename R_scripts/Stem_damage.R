@@ -16,6 +16,9 @@ library(nlme)
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
 Prop_dam<-read.csv("prop_damage.csv")
 head(Prop_dam)
+
+length(which(!is.na(Prop_dam$Damage_prop)))
+
 colnames(Prop_dam)<-c("Study","Site_ID","Age","Method","BA_log","Prop_BA_log","Vol_log","Tree_ex_ha","Dam_tree","Dam_ha","Sev_per_tree","Severe_ha","BA_dam","Prop_ba_dam","Prop_seve_dam","Prop_dam","ID","All","Region","N_logged","Plot","Notes")
 
 ################################################################
@@ -32,7 +35,7 @@ summary(M1)
 
 #look at diagnostic plots
 plot(M1)
-plot(Prop_dam_CC$Vol_log,(predict(M1)))
+plot(Prop_dam_CC$Tree_corr,(predict(M1)))
 abline(a=0,b=1)
 
 #model averaging
@@ -62,7 +65,6 @@ Tree_pred2<-data.frame(Site_ID=Prop_dam$Site_ID,Tree_corr=Prop_dam$Tree_ex_ha-me
 Tree_pred2<-Tree_pred2[complete.cases(Tree_pred2),]
 Tree_pred2$Pred<-(predict(M1,newdata=Tree_pred2,level=0))
 M_Damage<-merge(Prop_dam,Tree_pred2,by="Site_ID",all=T)
-head(M_Damage)
 #put in predicted volume values where there are none where number of treesextracted is <25 per ha
 M_Damage$Vol_log2<-NULL
 for (i in 1:nrow(M_Damage)){
@@ -117,6 +119,10 @@ for (i in 1:nrow(M_Damage3)){
 }
 
 
+length(which(!is.na(M_Damage3$Prop_dam)))
+length(which(!is.na(M_Damage3$Prop_dam2)))
+
+#make predictions for plot
 Preds<-data.frame(Dam_ha=exp(log_ha),Pred=plogis(predict(M1,newdata=log_ha)))
 colnames(Preds)<-c("Dam_ha","Pred")
 head(Preds)
@@ -126,7 +132,7 @@ Scaling_plot1<-ggplot(M_Damage3,aes(x=Dam_ha,y=Prop_dam))+geom_point(size=3,shap
 Scaling_plot2<-Scaling_plot1+xlab(expression(paste("Number of trees damaged ",ha^-1)))+ylab("Proportion of residual trees damaged")
 Scaling_plot2+geom_line(data=Preds,aes(x=Dam_ha,y=Pred))
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
-ggsave("Volume_trees.jpeg",height=6,width=8,dpi=1200)
+ggsave("Damage_coeff.jpeg",height=6,width=8,dpi=1200)
 
 
 #now remove columns which are no use

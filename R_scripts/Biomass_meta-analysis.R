@@ -114,7 +114,11 @@ AGB_vol<-subset(AGB,Vol2>0)
 
 #log ratio effect size calculation for results with volume
 ROM2<-escalc(data=AGB_vol,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
-head(ROM2)
+ROM2<-subset(ROM2,Vol>0)
+
+#replace conventional with 1 and RIl with 0
+ROM2$Method2<-as.factor(ifelse(ROM2$Method=="Conventional",1,0))
+
 
 #different models relating volume and method to post logging change
 Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|ID),method="ML",data=ROM2)
@@ -124,11 +128,10 @@ Model3<-rma.mv(yi,vi,mods=~Method-1,random=list(~1|ID),method="ML",data=ROM2)
 Model4<-rma.mv(yi,vi,mods=~Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM2)
 Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM2)
 Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM2)
-Model7<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2)+I(Vol2^3)-1,random=list(~1|ID),method="ML",data=ROM2)
-Model8<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method-1,random=list(~1|ID),method="ML",data=ROM2)
-Model9<-rma.mv(yi,vi,mods=~Vol2*Age-1,random=list(~1|ID),method="ML",data=ROM2)
-Model10<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM2)
-Model11<-rma.mv(yi,vi,mods=~Vol2*Region-1,random=list(~1|ID),method="ML",data=ROM2)
+Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method-1,random=list(~1|ID),method="ML",data=ROM2)
+Model8<-rma.mv(yi,vi,mods=~Vol2*Age-1,random=list(~1|ID),method="ML",data=ROM2)
+Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM2)
+Model10<-rma.mv(yi,vi,mods=~Vol2*Region-1,random=list(~1|ID),method="ML",data=ROM2)
 
 
 
@@ -145,7 +148,7 @@ Model_AICc$sigma<-c(sum(Model0$sigma2),sum(Model1$sigma2),
               sum(Model4$sigma2),sum(Model5$sigma2),
               sum(Model6$sigma2),sum(Model7$sigma2),
               sum(Model8$sigma2),sum(Model9$sigma2),
-              sum(Model9$sigma2))
+              sum(Model10$sigma2))
 
 Model_AICc$R_squared<-c(Null_sigma-Model_AICc$sigma)/Null_sigma
 
@@ -166,7 +169,9 @@ setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and 
 write.csv(AICc_sel,file="AGB_vol.csv")
 
 #re-do model with REML
-Model8_reml<-rma.mv(yi,vi,mods=~Vol2*Method-1,random=list(~1|ID),method="REML",data=ROM2)
+Model8_reml<-rma.mv(yi,vi,mods=~Vol2+I(Vol^2)*Method-1,random=list(~1|ID),method="REML",data=ROM2)
+
+plot(predict(Model8_reml)$pred,resid(Model8_reml))
 
 #create dataframe for predictions
 all<-data.frame(yi=ROM2$yi,vi=ROM2$vi,Vol=ROM2$Vol2,Method=ROM2$Method,Age=ROM2$Age,MU=ROM2$MU,Study=ROM2$Study.x,Trees=ROM2$Trees2)
@@ -178,28 +183,23 @@ Vol<-seq(0,179,length.out=500)
 
 
 Method<-rep(c("Conventional","RIL"),times = 250)
-new_df<-data.frame(Vol,Method)
+new_df<-data.frame(Vol2=c(0,50,100,150,0,50,100,150),
+           Method2=as.factor(c(1,1,1,1,0,0,0,0)))
 
-preds<-predict(Model8_reml,newmods=cbind(c(0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,
-                                         0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180),
-                                         c("Conventional","Conventional","Conventional","Conventional","Conventional",
-                                           "Conventional","Conventional","Conventional","Conventional","Conventional",
-                                           "Conventional","Conventional","Conventional","Conventional","Conventional",
-                                           "Conventional","Conventional","Conventional","Conventional",
-                                           "RIL","RIL","RIL","RIL","RIL","RIL","RIL","RIL","RIL","RIL","RIL",
-                                           "RIL","RIL","RIL","RIL","RIL","RIL","RIL","RIL")))
+
+preds<-predict(Model8_reml,addx=T)
+preds[,7]
+preds2<-data.frame(print(preds))                                           
+
                                            
-                                           
-                                           
-  
-  seq(0,179,length.out=500),rep(c("Conventional","RIL"),times = 250)),intercept=0)
-new_preds<-data.frame(preds=preds$pred,ci.lb=preds$ci.lb,ci.ub=preds$ci.ub,Vol=preds$X.Vol2,Method=all$Method)
+
+new_preds<-data.frame(preds=as.numeric(preds2$pred),ci.lb=as.numeric(preds2$ci.lb),
+                      ci.ub=as.numeric(preds2$ci.ub),Vol=as.numeric(preds2$X.Vol2),Method=all$Method)
 
 
 #plot results
 #first create x axis labels
 Vol_ax<-(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))
-AGB_ax<-expression(paste("Unlogged biomass (Mg",ha^-1,")"))
 theme_set(theme_bw(base_size=25))
 vol_plot<-ggplot(data=all)
 vol_plot2<-vol_plot
@@ -209,18 +209,17 @@ vol_plot5<-vol_plot4+scale_size_continuous(range=c(5,10))+geom_line(data=new_pre
 vol_plot6<-vol_plot5+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
 vol_plot7<-vol_plot6+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))+scale_colour_brewer(palette="Set1")
 biommass_vol_plot<-vol_plot7+geom_line(data=new_preds,aes(y=exp(ci.lb)-1,x=Vol,group=Method,colour=Method),lty=3,size=2)+geom_line(data=new_preds,aes(y=exp(ci.ub)-1,x=Vol,group=Method,colour=Method),lty=3,size=2)
-biommass_vol_plot+geom_point(shape=16,aes(x=Vol,y=exp(yi)-1,colour=Method,size=1/vi),alpha=0.5)+scale_size_continuous(range=c(8,16))+ guides(colour = guide_legend(override.aes = list(size=18)))+ theme(legend.position="none")
+biommass_vol_plot+geom_point(data=all,shape=16,aes(x=Vol,y=exp(yi)-1,colour=Method,size=1/vi),alpha=0.5)+scale_size_continuous(range=c(8,16))+ guides(colour = guide_legend(override.aes = list(size=18)))+ theme(legend.position="none")
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("Prop_volume2.jpeg",height=12,width=12,dpi=1200)
 
 #plot residuals against inverse of standard error
+#first add residuals to dataframe
+ROM2$resid<-resid(Model8_reml)
 
-qplot(resid(Model8_reml),1/sqrt(ROM2$vi),size=1/ROM2$vi)
+ggplot(ROM2,aes(x=Vol,y=resid,colour=Method))+geom_point()+geom_vline(x=median(ROM2$yi))
 
 
-qplot(fitted(Model6),resid(Model6),size=1/ROM2$vi)
 
-plot(ROM2$Vol2,ROM2$yi)
-points(ROM2$Vol2,predict(Model4)$pred,col="red")
 
-qplot(ROM2$yi,predict(Model7)$pred,size=1/ROM2$vi)
+

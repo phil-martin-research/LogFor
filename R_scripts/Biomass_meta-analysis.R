@@ -213,13 +213,101 @@ biommass_vol_plot+geom_point(data=all,shape=16,aes(x=Vol,y=exp(yi)-1,colour=Meth
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("Prop_volume2.jpeg",height=12,width=12,dpi=1200)
 
-#plot residuals against inverse of standard error
-#first add residuals to dataframe
-ROM2$resid<-resid(Model8_reml)
-
-ggplot(ROM2,aes(x=Vol,y=resid,colour=Method))+geom_point()+geom_vline(x=median(ROM2$yi))
 
 
+########################################################################
+#now run model subsetting the data to removed pinard study##############
+########################################################################
 
+head(ROM2)
+
+nrow(ROM2)
+
+ROM3<-subset(ROM2,Study.x!="Pinard et al 1996")
+
+#different models relating volume and method to post logging change
+Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|ID),method="ML",data=ROM3)
+Model1<-rma.mv(yi,vi,mods=~~Age-1,random=list(~1|ID),method="ML",data=ROM3)
+Model2<-rma.mv(yi,vi,mods=~Vol2-1,random=list(~1|ID),method="ML",data=ROM3)
+Model3<-rma.mv(yi,vi,mods=~Method-1,random=list(~1|ID),method="ML",data=ROM3)
+Model4<-rma.mv(yi,vi,mods=~Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM3)
+Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM3)
+Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM3)
+Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method-1,random=list(~1|ID),method="ML",data=ROM3)
+Model8<-rma.mv(yi,vi,mods=~Vol2*Age-1,random=list(~1|ID),method="ML",data=ROM3)
+Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM3)
+Model10<-rma.mv(yi,vi,mods=~Vol2*Region-1,random=list(~1|ID),method="ML",data=ROM3)
+
+
+
+Model_AICc<-data.frame(AICc=c(Model0$fit.stats$ML[5],Model1$fit.stats$ML[5],Model2$fit.stats$ML[5],Model3$fit.stats$ML[5],Model4$fit.stats$ML[5],Model5$fit.stats$ML[5],Model6$fit.stats$ML[5],Model7$fit.stats$ML[5],Model8$fit.stats$ML[5],Model9$fit.stats$ML[5],Model10$fit.stats$ML[5]))
+Model_AICc$model<-c("Null","Model1","Model2","Model3","Model4","Model5","Model6","Model7","Model8","Model9","Model10")
+
+#calculate AICc delta
+Model_AICc$delta<-Model_AICc$AICc-min(Model_AICc$AICc)
+#calculate pseudo r squared for each model
+Null_sigma<-(sum(Model0$sigma2))
+
+Model_AICc$sigma<-c(sum(Model0$sigma2),sum(Model1$sigma2),
+                    sum(Model2$sigma2),sum(Model3$sigma2),
+                    sum(Model4$sigma2),sum(Model5$sigma2),
+                    sum(Model6$sigma2),sum(Model7$sigma2),
+                    sum(Model8$sigma2),sum(Model9$sigma2),
+                    sum(Model10$sigma2))
+
+Model_AICc$R_squared<-c(Null_sigma-Model_AICc$sigma)/Null_sigma
+
+#drop last models with delta >7
+AICc_sel<-Model_AICc
+#calculate the relative likelihood of model
+AICc_sel$rel_lik<-exp((AICc_sel$AICc[1]-AICc_sel$AICc)/2)
+AICc_sel$rel_lik<-round(AICc_sel$rel_lik,2)
+#calculate the AICc weight
+AICc_sel$weight<-AICc_sel$rel_lik/(sum(AICc_sel$rel_lik))
+AICc_sel$weight<-round(AICc_sel$weight,3)
+#reorder sorting
+AICc_sel<-AICc_sel[order(AICc_sel$AICc),]
+#put in variables
+AICc_sel$vars<-c("Vol*Method","Vol","Vol*Method+Vol^2","Vol+*Age+Vol*Method","Vol*Age","Vol*Vol^2","Vol*Region","Vol*Method=Vol^2*Method","Null model","Age","Method")
+setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Tables")
+write.csv(AICc_sel,file="AGB_vol_no_pinard.csv")
+
+#re-do model with REML
+Model8_reml<-rma.mv(yi,vi,mods=~Vol2*Method-1,random=list(~1|ID),method="REML",data=ROM3)
+
+plot(predict(Model8_reml)$pred,resid(Model8_reml))
+
+#create dataframe for predictions
+all<-data.frame(yi=ROM3$yi,vi=ROM3$vi,Vol=ROM3$Vol2,Method=ROM3$Method,Age=ROM3$Age,MU=ROM3$MU,Study=ROM3$Study.x,Trees=ROM3$Trees2)
+all$preds<-(predict(Model8_reml,level=0))$pred
+all$ci.lb<-(predict(Model8_reml,level=0))$ci.lb
+all$ci.ub<-(predict(Model8_reml,level=0))$ci.ub
+
+preds<-predict(Model8_reml,addx=T)
+preds[,7]
+preds2<-data.frame(print(preds))                                           
+
+
+
+new_preds<-data.frame(preds=as.numeric(preds2$pred),ci.lb=as.numeric(preds2$ci.lb),
+                      ci.ub=as.numeric(preds2$ci.ub),Vol=as.numeric(preds2$X.Vol2),Method=all$Method)
+
+
+
+#plot results
+#first create x axis labels
+Vol_ax<-(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))
+theme_set(theme_bw(base_size=25))
+vol_plot<-ggplot(data=all)
+vol_plot2<-vol_plot
+vol_plot3<-vol_plot2
+vol_plot4<-vol_plot3+ylab("Proportional change in biomass following logging")
+vol_plot5<-vol_plot4+scale_size_continuous(range=c(5,10))+geom_line(data=new_preds,aes(x=Vol,y=exp(preds)-1,group=Method,colour=Method),size=3)+geom_hline(y=0,lty=2,size=2)
+vol_plot6<-vol_plot5+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
+vol_plot7<-vol_plot6+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))+scale_colour_brewer(palette="Set1")
+biommass_vol_plot<-vol_plot7+geom_line(data=new_preds,aes(y=exp(ci.lb)-1,x=Vol,group=Method,colour=Method),lty=3,size=2)+geom_line(data=new_preds,aes(y=exp(ci.ub)-1,x=Vol,group=Method,colour=Method),lty=3,size=2)
+biommass_vol_plot+geom_point(data=all,shape=16,aes(x=Vol,y=exp(yi)-1,colour=Method,size=1/vi),alpha=0.5)+scale_size_continuous(range=c(8,16))+ guides(colour = guide_legend(override.aes = list(size=18)))+ theme(legend.position="none")
+setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
+ggsave("Prop_volume2_no_pinard.jpeg",height=12,width=12,dpi=1200)
 
 

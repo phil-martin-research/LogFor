@@ -17,7 +17,7 @@ setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and 
 Dam<-read.csv("Dam_intens.csv")
 head(Dam)
 colnames(Dam)[3]<-"Vol2"
-Dam<-Dam[complete.cases(Dam[,6]),]
+Dam<-Dam[complete.cases(Dam[,7]),]
 
 #######################################################
 #now predict proportion of trees damaged using volume##
@@ -72,10 +72,10 @@ head(Damage_pred2)
 
 #plot these results
 theme_set(theme_bw(base_size=12))
-Dam_1<-ggplot(Dam,aes(x=Vol2,y=Prop_dam,colour=Method))+geom_point(shape=1)+geom_line(data=Damage_pred2,aes(x=Vol2,y=plogis(fit),colour=Method),size=2)
+Dam_1<-ggplot(Dam,aes(x=Vol2,y=Prop_dam,colour=Method))+geom_point(shape=16,size=3)+geom_line(data=Damage_pred2,aes(x=Vol2,y=plogis(fit),colour=Method),size=2)
 Dam_2<-Dam_1+geom_line(data=Damage_pred2,aes(x=Vol2,y=plogis(fit+(1.96*se.fit)),colour=Method),lty=2)+geom_line(data=Damage_pred2,aes(x=Vol2,y=plogis(fit-(1.96*se.fit)),colour=Method),lty=2)
 Dam_3<-Dam_2+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
-Dam_3+xlab("Volume logged per hectare")+ylab("Proportion of residual tree stems damaged")
+Dam_3+xlab("Volume logged per hectare")+ylab("Proportion of residual tree stems damaged")+scale_colour_brewer(palette = "Set1")
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("Prop_damaged_vol.jpeg",height=6,width=8,dpi=1200)
 

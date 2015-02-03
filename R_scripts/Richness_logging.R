@@ -76,6 +76,16 @@ Model_AIC<-data.frame(AICc=c(Model0_Vol$fit.stats$ML[5],Model1_Vol$fit.stats$ML[
 Model_AIC$Vars<-c("Null","Volume","Volume+Volume^2",
                    "Method","Volume+Method")
 
+#calculate r squared
+str(Model0_Vol)
+
+Null_sigma<-sum(Model0_Vol$sigma2)
+Model_AIC$sigma<-c(sum(Model0_Vol$sigma2),sum(Model1_Vol$sigma2),
+                   sum(Model2_Vol$sigma2),sum(Model3_Vol$sigma2),
+                   sum(Model4_Vol$sigma2))
+
+c(Null_sigma-Model_AIC$sigma)/Null_sigma
+
 
 #reorder from lowest to highest
 Model_AIC<-Model_AIC[order(Model_AIC$AICc),]
@@ -86,6 +96,9 @@ Model_AIC$delta<-Model_AIC$AICc-Model_AIC$AICc[1]
 Model_AIC$rel_lik<-exp((Model_AIC$AICc[1]-Model_AIC$AICc)/2)
 #calculate the AICc weight
 Model_AIC$weight<-Model_AIC$rel_lik/(sum(Model_AIC$rel_lik))
+
+
+
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Tables")
 write.table(Model_AIC,file="Rich_with_vol.csv",sep=",")
 
@@ -122,7 +135,7 @@ vol_plot6<-vol_plot5+theme(panel.grid.major = element_blank(),panel.grid.minor =
 vol_plot7<-vol_plot6+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))+scale_colour_brewer(palette="Set1")
 rich_vol_plot<-vol_plot7+geom_line(data=new_preds,aes(y=exp(ci.lb)-1,x=Vol),lty=3,size=1)+geom_line(data=new_preds,aes(y=exp(ci.ub)-1,x=Vol),lty=3,size=1)+theme(legend.position="none")+scale_colour_brewer(palette="Set1")
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
-ggsave("SR_volume.jpeg",height=12,width=12,dpi=1200)
+ggsave("SR_volume.png",height=12,width=12,dpi=400)
 
 
 #create funnel plot with residuals

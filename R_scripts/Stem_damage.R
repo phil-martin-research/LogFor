@@ -57,7 +57,7 @@ Scaling_plot1<-ggplot(Prop_dam_CC,aes(x=Tree_ex_ha,y=Vol_log,colour=Region))+geo
 Scaling_plot2<-Scaling_plot1+xlab(expression(paste("Number of trees extracted ",ha^-1)))+ylab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))
 Scaling_plot2+geom_line(data=Tree_pred1,aes(x=Trees,y=Pred,group=Region,colour=Region),size=2)
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
-ggsave("Volume_trees.jpeg",height=6,width=8,dpi=1200)
+ggsave("Volume_trees.png",height=6,width=8,dpi=400)
 
 
 #merge onto dataset of other data
@@ -132,7 +132,7 @@ Scaling_plot1<-ggplot(M_Damage3,aes(x=Dam_ha,y=Prop_dam))+geom_point(size=3,shap
 Scaling_plot2<-Scaling_plot1+xlab(expression(paste("Number of trees damaged ",ha^-1)))+ylab("Proportion of residual trees damaged")
 Scaling_plot2+geom_line(data=Preds,aes(x=Dam_ha,y=Pred))
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
-ggsave("Damage_coeff.jpeg",height=6,width=8,dpi=1200)
+ggsave("Damage_coeff.png",height=6,width=8,dpi=400)
 
 
 #now remove columns which are no use

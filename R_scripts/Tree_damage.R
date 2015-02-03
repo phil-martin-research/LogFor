@@ -28,6 +28,8 @@ Dam$Vol_sq<-Dam$Vol2^2
 Dam$Vol_log<-log(Dam$Vol2)
 Dam$Vol_log2<-(log(Dam$Vol2))^2
 
+nrow(Dam)
+
 #test for the effects of volume logged, non-linear volume logged (squared and log), differences in method
 #and a null model
 M1<-lmer(qlogis(Prop_dam2)~Vol2*Method+Vol_sq*Method+(1|Study),Dam,na.action="na.fail")

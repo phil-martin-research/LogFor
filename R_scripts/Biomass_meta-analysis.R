@@ -116,23 +116,28 @@ AGB_vol<-subset(AGB,Vol2>0)
 ROM2<-escalc(data=AGB_vol,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
 ROM2<-subset(ROM2,Vol>0)
 
+setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Tables")
+write.csv(ROM2,"AGB_studies_vol.csv")
+
+
 #replace conventional with 1 and RIl with 0
 ROM2$Method2<-as.factor(ifelse(ROM2$Method=="Conventional",1,0))
 
-
 #different models relating volume and method to post logging change
 Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|ID),method="ML",data=ROM2)
-Model1<-rma.mv(yi,vi,mods=~~Age-1,random=list(~1|ID),method="ML",data=ROM2)
-Model2<-rma.mv(yi,vi,mods=~Vol2-1,random=list(~1|ID),method="ML",data=ROM2)
-Model3<-rma.mv(yi,vi,mods=~Method-1,random=list(~1|ID),method="ML",data=ROM2)
-Model4<-rma.mv(yi,vi,mods=~Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM2)
-Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM2)
-Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM2)
-Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method-1,random=list(~1|ID),method="ML",data=ROM2)
-Model8<-rma.mv(yi,vi,mods=~Vol2*Age-1,random=list(~1|ID),method="ML",data=ROM2)
-Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM2)
-Model10<-rma.mv(yi,vi,mods=~Vol2*Region-1,random=list(~1|ID),method="ML",data=ROM2)
+Model1<-rma.mv(yi,vi,mods=~~Age,random=list(~1|ID),method="ML",data=ROM2)
+Model2<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|ID),method="ML",data=ROM2)
+Model3<-rma.mv(yi,vi,mods=~Method,random=list(~1|ID),method="ML",data=ROM2)
+Model4<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|ID),method="ML",data=ROM2)
+Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method,random=list(~1|ID),method="ML",data=ROM2)
+Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2),random=list(~1|ID),method="ML",data=ROM2)
+Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method,random=list(~1|ID),method="ML",data=ROM2)
+Model8<-rma.mv(yi,vi,mods=~Vol2*Age,random=list(~1|ID),method="ML",data=ROM2)
+Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2),random=list(~1|ID),method="ML",data=ROM2)
+Model10<-rma.mv(yi,vi,mods=~Vol2*Region,random=list(~1|ID),method="ML",data=ROM2)
 
+nrow(ROM)
+summary(ROM$Age)
 
 
 Model_AICc<-data.frame(AICc=c(Model0$fit.stats$ML[5],Model1$fit.stats$ML[5],Model2$fit.stats$ML[5],Model3$fit.stats$ML[5],Model4$fit.stats$ML[5],Model5$fit.stats$ML[5],Model6$fit.stats$ML[5],Model7$fit.stats$ML[5],Model8$fit.stats$ML[5],Model9$fit.stats$ML[5],Model10$fit.stats$ML[5]))
@@ -169,7 +174,7 @@ setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and 
 write.csv(AICc_sel,file="AGB_vol.csv")
 
 #re-do model with REML
-Model8_reml<-rma.mv(yi,vi,mods=~Vol2+I(Vol^2)*Method-1,random=list(~1|ID),method="REML",data=ROM2)
+Model8_reml<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|ID),method="REML",data=ROM2)
 
 plot(predict(Model8_reml)$pred,resid(Model8_reml))
 
@@ -211,7 +216,7 @@ vol_plot7<-vol_plot6+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,"
 biommass_vol_plot<-vol_plot7+geom_line(data=new_preds,aes(y=exp(ci.lb)-1,x=Vol,group=Method,colour=Method),lty=3,size=2)+geom_line(data=new_preds,aes(y=exp(ci.ub)-1,x=Vol,group=Method,colour=Method),lty=3,size=2)
 biommass_vol_plot+geom_point(data=all,shape=16,aes(x=Vol,y=exp(yi)-1,colour=Method,size=1/vi),alpha=0.5)+scale_size_continuous(range=c(8,16))+ guides(colour = guide_legend(override.aes = list(size=18)))+ theme(legend.position="none")
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
-ggsave("Prop_volume2.jpeg",height=12,width=12,dpi=1200)
+ggsave("Prop_volume2.png",height=12,width=12,dpi=400)
 
 
 
@@ -227,15 +232,15 @@ ROM3<-subset(ROM2,Study.x!="Pinard et al 1996")
 
 #different models relating volume and method to post logging change
 Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|ID),method="ML",data=ROM3)
-Model1<-rma.mv(yi,vi,mods=~~Age-1,random=list(~1|ID),method="ML",data=ROM3)
-Model2<-rma.mv(yi,vi,mods=~Vol2-1,random=list(~1|ID),method="ML",data=ROM3)
-Model3<-rma.mv(yi,vi,mods=~Method-1,random=list(~1|ID),method="ML",data=ROM3)
-Model4<-rma.mv(yi,vi,mods=~Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM3)
-Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method-1,random=list(~1|ID),method="ML",data=ROM3)
-Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM3)
-Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method-1,random=list(~1|ID),method="ML",data=ROM3)
+Model1<-rma.mv(yi,vi,mods=~~Age,random=list(~1|ID),method="ML",data=ROM3)
+Model2<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|ID),method="ML",data=ROM3)
+Model3<-rma.mv(yi,vi,mods=~Method,random=list(~1|ID),method="ML",data=ROM3)
+Model4<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|ID),method="ML",data=ROM3)
+Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method,random=list(~1|ID),method="ML",data=ROM3)
+Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2),random=list(~1|ID),method="ML",data=ROM3)
+Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method,random=list(~1|ID),method="ML",data=ROM3)
 Model8<-rma.mv(yi,vi,mods=~Vol2*Age-1,random=list(~1|ID),method="ML",data=ROM3)
-Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)-1,random=list(~1|ID),method="ML",data=ROM3)
+Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2),random=list(~1|ID),method="ML",data=ROM3)
 Model10<-rma.mv(yi,vi,mods=~Vol2*Region-1,random=list(~1|ID),method="ML",data=ROM3)
 
 
@@ -310,4 +315,6 @@ biommass_vol_plot+geom_point(data=all,shape=16,aes(x=Vol,y=exp(yi)-1,colour=Meth
 setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
 ggsave("Prop_volume2_no_pinard.jpeg",height=12,width=12,dpi=1200)
 
+#plot to whos the difference in logging intesnity for RIl and conventional
+ggplot(data=ROM2,aes(x=Vol2,fill=Method))+geom_density()+facet_wrap(~Method,scales="free_x")
 

@@ -1,0 +1,46 @@
+Study,Site,Age,Method,Vol,MU,VU,SSU,ML,VL,SSL,VarT,ID,Allometry,Region,N_Logged,Plot_size,CV_UL,CV_L
+Alongi et al 2008,Alongi et al 2008a,1,Conventional,-9999,51.1,21.6,3,18.7,4.3,3,SE,1,Allometric - no height,Asia & Oceania,1,,,
+Alongi et al 2008,Alongi et al 2008b,1,Conventional,-9999,194.8,55.7,3,42.9,18.8,3,SE,2,Allometric - no height,Asia & Oceania,1,,,
+Alongi et al 2008,Alongi et al 2008c,1,Conventional,-9999,221.5,21.4,3,118.6,21.8,3,SE,3,Allometric - no height,Asia & Oceania,1,,,
+Berry et al 2010,Berry et al 2010a,0,Conventional,97.2,276,29,10,128.4,39.9,10,SE,4,Allometric - no height,Asia & Oceania,1,,,
+Bryan et al 2010,Bryan et al 2010a,1,RIL,10.7,252.41,7,3,171.97,4.51,3,SE,6,Allometric - height,Asia & Oceania,1,,,
+Bryan et al 2010,Bryan et al 2010b,1,RIL,10.7,192.96,4.44,3,157.03,4.89,3,SE,7,Allometric - height,Asia & Oceania,1,,,
+Chambers et al 2005,Chambers et al 2005a,4,Conventional,-9999,346.8,28.21329474,3,279.9333333,29.85034897,3,SD,8,Allometric - height,Americas,1,,0.081353214,0.106633778
+Chambers et al 2005,Chambers et al 2005b,4,Conventional,-9999,343.3,32.22002483,3,249.7333333,15.29749435,3,SD,9,Allometric - height,Americas,1,,0.093853845,0.061255316
+Chambers et al 2005,Chambers et al 2005c,4,Conventional,-9999,330.8333333,30.91865672,3,261.4,28.72925338,3,SD,10,Allometric - height,Americas,1,,0.093456897,0.10990533
+d'Oliveira et al 2010,d'Oliveira et al 2010a,0,Conventional,12.5,235.6,13.6,30,219.5,16.8,10,SE,11,Allometric - no height,Americas,1,,,
+Gerwing et al 2002,Gerwing et al 2002a,5,Conventional,35.3,258,30,3,198,18,3,SD,12,Allometric - no height,Americas,1,,0.11627907,0.090909091
+Gerwing et al 2002,Gerwing et al 2002b,5,Conventional,52,258,30,3,148,10,3,SD,13,Allometric - no height,Americas,1,,0.11627907,0.067567568
+Gourlet-Fleury et al 2013,Gourlet-Fleury et al 2013,0,Conventional,66,386.4253333,68.07363939,12,284.7743333,36.79663974,12,SD,14,Allometric - no height,Africa,1,,0.176162465,0.129213329
+Kronseder et al 2012,Kronseder et al 2012a,0,Conventional,-9999,547.1,193.8,15,230.8,104.2,10,SD,15,Allometric - no height,Asia & Oceania,1,,0.354231402,0.451473137
+Kronseder et al 2012,Kronseder et al 2012b,0,Conventional,-9999,228.1,98.1,9,159.9,88.2,9,SD,16,Allometric - no height,Asia & Oceania,1,,0.430074529,0.551594747
+Lasco et al 2006,Lasco et al 2006a,2.5,Conventional,-9999,399,145,2,191,123,2,SD,17,Allometric - height,Asia & Oceania,1,,0.363408521,0.643979058
+Lasco et al 2006,Lasco et al 2006b,7.5,Conventional,-9999,399,145,2,238,156,2,SD,17,Allometric - height,Asia & Oceania,1,,0.363408521,0.655462185
+Lasco et al 2006,Lasco et al 2006c,15,Conventional,-9999,399,145,2,204,134,2,SD,17,Allometric - height,Asia & Oceania,1,,0.363408521,0.656862745
+Lasco et al 2006,Lasco et al 2006d,18.5,Conventional,-9999,399,145,2,235,161,2,SD,17,Allometric - height,Asia & Oceania,1,,0.363408521,0.685106383
+Lasco et al 2006,Lasco et al 2006e,21,Conventional,-9999,399,145,2,287,149,2,SD,17,Allometric - height,Asia & Oceania,1,,0.363408521,0.519163763
+Lindner et al 2011,Lindner et al 2011,30,Conventional,-9999,313,48,5,204,38,5,SE,18,Allometric - height,Americas,1,,,
+Mazzei et al 2010,Mazzei et al 2010,0,RIL,21,409.8,64.9,17,315.3647059,44.90907399,17,SD,19,Allometric - no height,Americas,1,,0.158369937,0.142403614
+Medjibe et al 2011,Medjibe et al 2011,0,RIL,8.11,420.4,92.95,10,386.22,109.0794186,10,SD,20,Allometric - no height,Africa,1,,0.221098953,0.282428198
+Pfeifer et al 2013,Pfeifer et al 2013a,10,Conventional,179,565.1041496,328.677753,9,127.1630665,75.41151032,16,SD,21,Allometric - height,Asia & Oceania,2,,0.581623322,0.593029976
+Pfeifer et al 2013,Pfeifer et al 2013b,10,Conventional,150,565.1041496,328.677753,9,168.5752185,44.28430042,9,SD,21,Allometric - height,Asia & Oceania,2,,0.581623322,0.262697571
+Pfeifer et al 2013,Pfeifer et al 2013c,10,Conventional,150,565.1041496,328.677753,9,168.5980573,116.5109326,8,SD,21,Allometric - height,Asia & Oceania,2,,0.581623322,0.691057385
+Pfeifer et al 2013,Pfeifer et al 2013d,10,Conventional,179,565.1041496,328.677753,9,87.22143687,63.51575997,16,SD,21,Allometric - height,Asia & Oceania,2,,0.581623322,0.728212722
+Pfeifer et al 2013,Pfeifer et al 2013e,10,Conventional,150,565.1041496,328.677753,9,181.832157,47.29814627,9,SD,21,Allometric - height,Asia & Oceania,2,,0.581623322,0.260119811
+Pfeifer et al 2013,Pfeifer et al 2013f,10,Conventional,179,565.1041496,328.677753,9,51.29253423,49.33324672,16,SD,21,Allometric - height,Asia & Oceania,2,,0.581623322,0.961801702
+Pfeifer et al 2013,Pfeifer et al 2013g,10,Conventional,179,565.1041496,328.677753,9,67.34782612,69.93300898,16,SD,21,Allometric - height,Asia & Oceania,2,,0.581623322,1.038385543
+Pfeifer et al 2013,Pfeifer et al 2013h,10,Conventional,179,565.1041496,328.677753,9,58.76602617,46.16436693,16,SD,21,Allometric - height,Asia & Oceania,2,,0.581623322,0.785562168
+Pfeifer et al 2013,Pfeifer et al 2013i,10,Conventional,179,565.1041496,328.677753,9,68.78087386,65.25066726,16,SD,21,Allometric - height,Asia & Oceania,2,,0.581623322,0.948674589
+Pfeifer et al 2013,Pfeifer et al 2013j,10,Conventional,150,565.1041496,328.677753,9,92.93852309,44.10157135,9,SD,21,Allometric - height,Asia & Oceania,2,,0.581623322,0.474524125
+Pinard et al 1996,Pinard et al 1996a,0,RIL,103.5835,327.54,54.0371067,4,211.78,18.6400617,4,SD,22,Allometric - no height,Asia & Oceania,1,,0.164978649,0.088016157
+Pinard et al 1996,Pinard et al 1996b,0,Conventional,154.482125,333.47,40.73364703,4,135.8,20.75198304,4,SD,23,Allometric - no height,Asia & Oceania,1,,0.122150859,0.152812835
+Saner et al 2012,Saner et al 2012,0,Conventional,117.38,256,26.8,4,183.8,5.8,4,SE,24,Allometric - no height,Asia & Oceania,1,,,
+Tangki et al 2008,Tangki et al 2008,11,Conventional,101.2,427.495,109.3250955,10,218.31,185.9464001,45,SD,25,Allometric - no height,Asia & Oceania,1,,0.255734209,0.851753928
+d'Oliveira et al 2012,d'Oliveira et al 2012,1,Conventional,6.9,198.9,8.5,10,185.1,9,10,SE,26,Allometric - no height,Americas,1,1,,
+Sist et al 2012,Sist et al 2012a,,Conventional,-9999,442.1568,,3,236.7577,,3,,27,Allometric - no height,Americas,,6.25,,
+Sist et al 2012,Sist et al 2012b,,RIL,-9999,420.0352,,18,331.5569,,18,,28,Allometric - no height,Americas,1,1,,
+Sist et al 2012,Sist et al 2012c,,Conventional,-9999,406.6035,,3,303.1123,,3,,29,Allometric - no height,Americas,,6.25,,
+Imai et al 2013,Imai et al 2013a,8,RIL,13.74,499,60,4,341,52,4,,30,Allometric - no height,Asia & Oceania,1,,,
+Imai et al 2013,Imai et al 2013b,5,Conventional,-9999,499,60,4,163,84,4,,30,Allometric - no height,Asia & Oceania,2,0.2,,
+Medjibe et al 2013,Medjibe et al 2013a,,RIL,,380,86.78,12,,,,,,,,,1,,
+Medjibe et al 2013,Medjibe et al 2013b,,Conventional,,,,,,,,,,,,,1,,

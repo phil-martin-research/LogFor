@@ -1,0 +1,61 @@
+"Study","Site_ID","Vol_log2","Tree_ex_ha2","Method","Prop_dam","Prop_dam2","Prop_seve_dam","Region"
+"Abdulhadi et al 1981","Abdulhadi et al 1981-1",112.665913269972,11,"Conventional",0.236,0.236,NA,NA
+"Abebe and Holm 2003","Abebe and Holm 2003-1",46,2330867.59930331,"Conventional",0.103896104,0.103896104,NA,"Africa"
+"Bertault and Sist 1997","Bertault and Sist 1997-1",96.8,10.7,"RIL",0.368,0.368,NA,"Asia"
+"Bertault and Sist 1997","Bertault and Sist 1997-2",56.5,7,"RIL",0.305,0.305,NA,"Asia"
+"Bertault and Sist 1997","Bertault and Sist 1997-3",107.2,10.1,"Conventional",0.484,0.484,NA,"Asia"
+"Chapman et al 2000","Chapman et al 2000-1",21.3,7.4,"Conventional",0.5,0.5,NA,"Africa"
+"Chapman et al 2000","Chapman et al 2000-2",14,5.1,"Conventional",0.25,0.25,NA,"Africa"
+"Feldpausch et al 2005","Feldpausch et al 2005-1",6.2,1.1,"RIL",0.118304432,0.118304432,NA,"Americas"
+"Forshed et al 2006","Forshed et al 2006-1",137.487194869031,13,"Conventional",0.406812339,0.406812339,NA,NA
+"Forshed et al 2006","Forshed et al 2006-2",92.8088879907244,9.4,"RIL",0.325050916,0.325050916,NA,NA
+"Forshed et al 2006","Forshed et al 2006-3",137.487194869031,13,"Conventional",0.370677159,0.370677159,NA,NA
+"Forshed et al 2006","Forshed et al 2006-4",92.8088879907244,9.4,"RIL",0.358887953,0.358887953,NA,NA
+"Iskander et al 2006","Iskander et al 2006-1",-11.440494725325,1,"Conventional",NA,NA,NA,NA
+"Iskander et al 2006","Iskander et al 2006-2",25.7914276732641,4,"Conventional",NA,NA,NA,NA
+"Iskander et al 2006","Iskander et al 2006-3",13.3807868737344,3,"Conventional",NA,NA,NA,NA
+"Iskander et al 2006","Iskander et al 2006-4",25.7914276732641,4,"Conventional",NA,NA,NA,NA
+"Jackson et al 2002","Jackson et al 2002-1",12.1,4.35,"Conventional",0.45,0.45,NA,"Americas"
+"Johns et al 1996","Johns et al 1996-1",30,5.6,"Conventional",NA,NA,NA,"Americas"
+"Johns et al 1996","Johns et al 1996-2",37,4.5,"Conventional",NA,NA,NA,"Americas"
+"Jonkers 2000","Jonkers 2000-1",11.8056767283158,1.424242424,"Conventional",NA,NA,NA,NA
+"Jonkers 2000","Jonkers 2000-2",11.7596346009193,1.393939394,"Conventional",0.058849558,0.058849558,NA,NA
+"Kao and Iidu 2006","Kao and Iidu 2006-1",13.3807868737344,3,"Conventional",NA,NA,NA,NA
+"Medjibe et al 2011","Medjibe et al 2011-1",8.11,0.82,"RIL",NA,NA,NA,"Africa"
+"Medjibe et al 2013","Medjibe et al 2013-1",5.7,0.39,"RIL",0.011674342,0.011674342,NA,"Africa"
+"Medjibe et al 2013","Medjibe et al 2013-2",11.4,0.76,"Conventional",0.041043928,0.041043928,NA,"Africa"
+"Miller et al 2011","Miller et al 2011-1",19.885537178546,3.6,"RIL",NA,NA,NA,NA
+"Nicholson et al 1979","Nicholson et al 1979-1",37.9,4.7,"Conventional",0.437,0.437,0.298,"Asia"
+"Nicholson et al 1979","Nicholson et al 1979-4",89.0856957508655,9.1,"Conventional",NA,NA,0.4,NA
+"Nicholson et al 1979","Nicholson et al 1979-5",135.005066709125,12.8,"Conventional",NA,NA,0.51,NA
+"Nicholson et al 1979","Nicholson et al 1979-6",123.835489989549,11.9,"Conventional",NA,NA,0.43,NA
+"Nicholson et al 1979","Nicholson et al 1979-7",175.960181347573,16.1,"Conventional",NA,NA,0.47,NA
+"Nicholson et al 1988","Nicholson et al 1988-1",66,26,"Conventional",NA,NA,0.16,"Asia"
+"Nicholson et al 1988","Nicholson et al 1988-8",36.6,6.6,"Conventional",NA,NA,0.181,"Asia"
+"Nicholson et al 1988","Nicholson et al 1988-9",42.1,7.6,"Conventional",NA,NA,0.204,"Asia"
+"Parren et al 2001","Parren et al 2001-1",13,1,"RIL",NA,NA,NA,"Africa"
+"Parren et al 2001","Parren et al 2001-2",13,1,"Conventional",NA,NA,NA,"Africa"
+"Pinard and Putz 1996","Pinard and Putz 1996-1",153.5,NA,"Conventional",0.65,0.65,NA,"Asia"
+"Pinard and Putz 1996","Pinard and Putz 1996-2",103.75,21974.8003435754,"RIL",0.38,0.38,NA,"Asia"
+"Sist and Nguyen 2002","Sist and Nguyen 2002-1",46.8895170324645,5.7,"Conventional",0.301,0.301,NA,NA
+"Sist and Nguyen 2002","Sist and Nguyen 2002-2",79.1571831112417,8.3,"Conventional",0.435,0.435,NA,NA
+"Sist and Nguyen 2002","Sist and Nguyen 2002-3",148.656771588608,13.9,"Conventional",0.584,0.584,NA,NA
+"Sist et al 2003","Sist et al 2003-1",60,7.5,"RIL",0.379,0.379,NA,"Asia"
+"Sist et al 2003","Sist et al 2003-2",83,7.6,"Conventional",0.508,0.508,NA,"Asia"
+"Sist et al 2007","Sist et al 2007-1",21,6.3,"RIL",0.2,0.2,NA,"Americas"
+"Uhl et al 1991","Uhl et al 1991-1",16,2,"Conventional",0.117171717,0.117171717,NA,"Americas"
+"van de Hout 1999","van de Hout 1999-1",16,4,"RIL",0.134,0.134,0.056,"Americas"
+"van de Hout 1999","van de Hout 1999-2",25.86666667,8,"RIL",0.203921569,0.203921569,0.064705882,"Americas"
+"van de Hout 1999","van de Hout 1999-3",46.93333333,16,"RIL",0.324384787,0.324384787,0.127516779,"Americas"
+"van de Hout 1999","van de Hout 1999-4",50.06666667,16,"Conventional",0.26252505,0.26252505,0.068136273,"Americas"
+"van de Hout 1999","van de Hout 1999-5",25.06666667,8,"Conventional",0.358241758,0.358241758,0.096703297,"Americas"
+"Verissimo et al 1992","Verissimo et al 1992-1",18,3,"Conventional",0.27,0.27,NA,"Americas"
+"Verissimo et al 1992","Verissimo et al 1992-2",35,7,"Conventional",0.35,0.35,NA,"Americas"
+"Verissimo et al 1992","Verissimo et al 1992-3",62,9,"Conventional",0.43,0.43,NA,"Americas"
+"Verissimo et al 1995","Verissimo et al 1995-1",1.3,0.3,"Conventional",NA,NA,NA,"Americas"
+"Verissimo et al 1995","Verissimo et al 1995-2",2.5,0.2,"Conventional",NA,NA,NA,"Americas"
+"Verissimo et al 1995","Verissimo et al 1995-3",11.4,2.1,"Conventional",NA,NA,NA,"Americas"
+"Webb et al 1997","Webb et al 1997-1",45.8,6.3,"Conventional",0.17,0.17,NA,"Americas"
+"White 2009","White 2009-1",12.6804771579652,2,"Conventional",0.177,0.177,NA,NA
+"White 2009","White 2009-2",12.6804771579652,2,"Conventional",0.108,0.108,NA,NA
+"Whitman et al 1997","Whitman et al 1997-1",9.90676932745062,0.5,"Conventional",0.65,0.048,NA,NA

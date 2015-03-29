@@ -1,0 +1,26 @@
+Study ID,Site ID,Years since logging,Extraction method,Trees_extracted,Volume extracted,Measurement type,Value in undisturbed,Variance in undisturbed,SS in undisturbed,Value in logged,Variance in logged,SS in logged,Variance type,Taxonomic group,Method used,Region,Plot area,Study
+Carreño Rocabado et al 2012,Carreño Rocabado et al 2012,0,Conventional,2.1,9.4,Species richness,123,1.85,9,132,1.765715768,23,CI,Plant,Not rarefied,Americas,,1
+Villela et al 2006,Villela et al 2006,5,Conventional,37,-9999,Species richness,40,6.2,8,45,4.5,8,SE,Plant,Not rarefied,Americas,,2
+Aubad et al 2008,Aubad et al 2008,,Conventional,,-9999,Species richness,86,2.25,25,51.75,2.75,25,SE,Plant,Not rarefied,Americas,,3
+Berry et al 2008,Berry et al 2008,18,Conventional,,92.4,Species richness,407.4238,10.38382653,15,434.1605,11.48341837,15,SE,Plant,Rarefied - Individuals,Asia & Oceania,,4
+Huang et al 2003,Huang et al 2003,10,Conventional,,-9999,Species richness,15.6,1.2,139,13.8,0.7,139,SE,Plant,Not rarefied,Africa,,5
+Gradstein et al 2007,Gradstein et al 2007,,Conventional,,-9999,Species richness,55.8,5.5,4,48.3,4,4,SD,Plant,Not rarefied,Asia & Oceania,,6
+Brown et al 2004,Brown et al 2004,50,Conventional,,-9999,Species richness,52.7952,-9999,3,33.0872,-9999,3,SD,Plant,Rarefied - Area,Africa,,7
+Brown et al 2004,Brown et al 2004,150,Conventional,,-9999,Species richness,52.7952,-9999,3,33.82,-9999,3,SD,Plant,Rarefied - Area,Africa,,7
+Cannon et al 1998,Cannon et al 1998,1,Conventional,,-9999,Species richness,111.8695,-9999,12,88.0168,-9999,12,SD,Plant,Rarefied - Area,Asia & Oceania,,9
+Cannon et al 1998,Cannon et al 1998,8,Conventional,,-9999,Species richness,111.8695,-9999,12,88.0168,-9999,12,SD,Plant,Rarefied - Area,Asia & Oceania,,9
+Webb et al 1998,Webb et al 1998,1,Conventional,4.7,41.3,Species richness,49.0455,-9999,4,49.1647,-9999,4,SD,Plant,Rarefied - Individuals,Americas,,10
+Webb et al 1998,Webb et al 1998,0,Conventional,6,49.2,Species richness,47.0168,-9999,4,42.0048,-9999,4,SD,Plant,Rarefied - Individuals,Americas,,11
+Foody et al 2003,Foody et al 2003,10,Conventional,,118,Species richness,21.55415,-9999,10,17.9,-9999,30,SD,Plant,Rarefied - Individuals,Asia & Oceania,,12
+Baraloto et al 2012,Baraloto et al 2012,20,Conventional,7,55,Species richness,122,12,6,123,12,6,SD,Plant,Rarefied - Area,Americas,,13
+Adekunle et al 2010,Adekunle et al 2010a,0,Conventional,,-9999,Species richness,46,,8,24,,8,,Tree,Not rarefied,Africa,0.04,15
+Asase et al 2014,Asase et al 2014a,32,Conventional,,-9999,Species richness,16.4,3.5,10,20.2,2.5,10,SE,Tree,Not rarefied,Africa,0.0625,16
+Imai et al 2012,Imai et al 2012a,8,RIL,2.36,13.74,Species richness,82.5,9.3,4,79.5,10.3,4,SE,Tree,Not rarefied,Asia & Oceania,0.2,17
+Imai et al 2012,Imai et al 2012b,5,Conventional,,-9999,Species richness,82.5,9.3,4,39.3,6.4,3,SE,Tree,Not rarefied,Asia & Oceania,0.2,17
+Medjibe et al 2013,Medjibe et al 2013a,0,RIL,0.39,5.7,Species richness,224,,20,223,,20,SE,Tree,Not rarefied,Africa,1,18
+Medjibe et al 2013,Medjibe et al 2013b,0,Conventional,0.76,11.4,Species richness,157,,12,154,,12,SE,Tree,Not rarefied,Africa,1,19
+Gourlet-Fleury et al 2013,Gourlet-Fleury et al 2013a,24,Conventional,4.5,76.14,Species richness,134.11,8.936504412,9,126,8.680786866,12,SD,Tree,Not rarefied,Africa,1,20
+Saiful and Latiff 2014,Saiful and Latiff 2014a,1,Conventional,27,73.7,Species richness,166,,,125,,,SD,Tree,Not rarefied,Asia & Oceania,0.09,21
+Burghouts e al 1994,Burghouts e al 1994a,,Conventional,,100,Species richness,42.5,1.8,30,39.2,1.5,30,SE,Tree,Not rarefied,Asia & Oceania,0.0314,22
+Gerwing et al 2002,Gerwing et al 2002a,5,Conventional,5.7,35.3,Species richness,380,54,3,393,75,3,SD,Tree,Not rarefied,Americas,0.5,23
+Gerwing et al 2002,Gerwing et al 2002b,5,Conventional,10,69,Species richness,380,54,3,250,34,3,SD,Tree,Not rarefied,Americas,0.5,23

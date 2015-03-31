@@ -125,7 +125,7 @@ ROM2$Method2<-as.factor(ifelse(ROM2$Method=="Conventional",1,0))
 
 #different models relating volume and method to post logging change
 Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|ID),method="ML",data=ROM2)
-Model1<-rma.mv(yi,vi,mods=~~Age,random=list(~1|ID),method="ML",data=ROM2)
+Model1<-rma.mv(yi,vi,mods=~Age,random=list(~1|ID),method="ML",data=ROM2)
 Model2<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|ID),method="ML",data=ROM2)
 Model3<-rma.mv(yi,vi,mods=~Method,random=list(~1|ID),method="ML",data=ROM2)
 Model4<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|ID),method="ML",data=ROM2)
@@ -135,6 +135,10 @@ Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method,random=list(~1|ID),metho
 Model8<-rma.mv(yi,vi,mods=~Vol2*Age,random=list(~1|ID),method="ML",data=ROM2)
 Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2),random=list(~1|ID),method="ML",data=ROM2)
 Model10<-rma.mv(yi,vi,mods=~Vol2*Region,random=list(~1|ID),method="ML",data=ROM2)
+
+(Model0$sigma-Model2$sigma)/Model0$sigma
+
+1-(Model4$sigma/Model0$sigma)
 
 nrow(ROM)
 summary(ROM$Age)

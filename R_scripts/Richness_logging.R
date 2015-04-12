@@ -65,32 +65,53 @@ Rich_vol<-subset(ROM_vol,!is.na(vi))
 sum(Rich_vol$SS_UL)
 sum(Rich_vol$SS_L)
 
-
 #models of richness change including volume
 
 #standardise volume and age using Zuurs methods
 Rich_vol$Vol_std<-(Rich_vol$Vol-mean(Rich_vol$Vol))/sd(Rich_vol$Vol)
 Rich_vol$Age_std<-(Rich_vol$Age-mean(Rich_vol$Age))/sd(Rich_vol$Age)
 
+Site_unique<-unique(Rich_vol$M_UL)
+for (i in 1:1000){
+Rich_samp<-NULL
+for (j in 1:length(Site_unique)){
+  Rich_sub<-subset(Rich_vol,M_UL==Site_unique[j])
+  Rich_sub<-Rich_sub[sample(nrow(Rich_sub), 1), ]
+  Rich_samp<-rbind(Rich_sub,Rich_samp)
+}
+Model0_Vol<-rma.mv(yi,vi,mods=~1,random=list(~ 1 | Rare),method="ML",data=Rich_vol)
+Model1_Vol<-rma.mv(yi,vi,mods=~Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
+Model2_Vol<-rma.mv(yi,vi,mods=~Method,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
+Model3_Vol<-rma.mv(yi,vi,mods=~Method*Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
+Model4_Vol<-rma.mv(yi,vi,mods=~Vol_std*Age_std,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
+Model5_Vol<-rma.mv(yi,vi,mods=~Age_std,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
+Model6_Vol<-rma.mv(yi,vi,mods=~Method+Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
+Model7_Vol<-rma.mv(yi,vi,mods=~Vol_std*Region,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
 
-head(Rich_vol)
-Model0_Vol<-rma.mv(yi,vi,mods=~1,random=list(~1|Study, ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model1_Vol<-rma.mv(yi,vi,mods=~Vol_std,random=list(~1|Study, ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model2_Vol<-rma.mv(yi,vi,mods=~Vol_std+I(Vol_std^2),random=list(~1|Study, ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model3_Vol<-rma.mv(yi,vi,mods=~Method,random=list(~1|Study, ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model4_Vol<-rma.mv(yi,vi,mods=~Method*Vol,random=list(~1|Study, ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model5_Vol<-rma.mv(yi,vi,mods=~Vol_std*Age_std,random=list(~1|Study, ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model6_Vol<-rma.mv(yi,vi,mods=~Age_std,random=list(~1|Study, ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model7_Vol<-rma.mv(yi,vi,mods=~Method+Vol,random=list(~1|Study, ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
+}
 
 
-ggplot(Rich_vol,aes(x=Vol_std,y=yi,size=1/vi))+geom_point()
+#so no need to account for study only for use of reference sites
+
+
+
+
+Model0_Vol<-rma.mv(yi,vi,mods=~1,random=list(~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
+Model1_Vol<-rma.mv(yi,vi,mods=~Vol_std,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
+Model2_Vol<-rma.mv(yi,vi,mods=~Method,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
+Model3_Vol<-rma.mv(yi,vi,mods=~Method*Vol_std,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
+Model4_Vol<-rma.mv(yi,vi,mods=~Vol_std*Age_std,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
+Model5_Vol<-rma.mv(yi,vi,mods=~Age_std,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
+Model6_Vol<-rma.mv(yi,vi,mods=~Method+Vol_std,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
+Model7_Vol<-rma.mv(yi,vi,mods=~Vol_std*Region,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
+
 
 #work out model AICc
-Model_AIC<-data.frame(AICc=c(Model0_Vol$fit.stats$ML[5],Model1_Vol$fit.stats$ML[5],Model2_Vol$fit.stats$ML[5],Model3_Vol$fit.stats$ML[5],Model4_Vol$fit.stats$ML[5],Model5_Vol$fit.stats$ML[5],Model6_Vol$fit.stats$ML[5]))
+Model_AIC<-data.frame(AICc=c(Model0_Vol$fit.stats$ML[5],Model1_Vol$fit.stats$ML[5],Model2_Vol$fit.stats$ML[5],Model3_Vol$fit.stats$ML[5],Model4_Vol$fit.stats$ML[5],Model5_Vol$fit.stats$ML[5],Model6_Vol$fit.stats$ML[5],
+                             Model7_Vol$fit.stats$ML[5]))
 
-Model_AIC$Vars<-c("Null","Volume","Volume+Volume^2",
-                   "Method","Volume*Method","Volume*Age","Age")
+Model_AIC$Vars<-c("Null","Volume",
+                   "Method","Volume*Method","Volume*Age","Age","Method+Volume","Volume*Region")
 
 (sum(Model0_Vol$sigma2) - sum(Model4_Vol$sigma2)) / sum(Model0_Vol$sigma2)
 
@@ -100,7 +121,8 @@ str(Model0_Vol)
 Null_sigma<-sum(Model0_Vol$sigma2)
 Model_AIC$sigma<-c(sum(Model0_Vol$sigma2),sum(Model1_Vol$sigma2),
                    sum(Model2_Vol$sigma2),sum(Model3_Vol$sigma2),
-                   sum(Model4_Vol$sigma2),sum(Model5_Vol$sigma2))
+                   sum(Model4_Vol$sigma2),sum(Model5_Vol$sigma2),
+                   sum(Model6_Vol$sigma2))
 
 c(Null_sigma-Model_AIC$sigma)/Null_sigma
 

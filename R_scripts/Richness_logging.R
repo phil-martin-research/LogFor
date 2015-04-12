@@ -14,6 +14,14 @@ library(ggplot2)
 library(metafor)
 library(MuMIn)
 library(boot)
+library(plyr)
+library(reshape2)
+#and functions needed
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
 
 #import data
 Richness<-read.csv("Data/Rich_intens.csv")
@@ -72,92 +80,96 @@ Rich_vol$Vol_std<-(Rich_vol$Vol-mean(Rich_vol$Vol))/sd(Rich_vol$Vol)
 Rich_vol$Age_std<-(Rich_vol$Age-mean(Rich_vol$Age))/sd(Rich_vol$Age)
 
 Site_unique<-unique(Rich_vol$M_UL)
+Model_AIC_summary<-NULL
 for (i in 1:1000){
+print(i)
 Rich_samp<-NULL
 for (j in 1:length(Site_unique)){
   Rich_sub<-subset(Rich_vol,M_UL==Site_unique[j])
   Rich_sub<-Rich_sub[sample(nrow(Rich_sub), 1), ]
   Rich_samp<-rbind(Rich_sub,Rich_samp)
 }
-Model0_Vol<-rma.mv(yi,vi,mods=~1,random=list(~ 1 | Rare),method="ML",data=Rich_vol)
-Model1_Vol<-rma.mv(yi,vi,mods=~Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
-Model2_Vol<-rma.mv(yi,vi,mods=~Method,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
-Model3_Vol<-rma.mv(yi,vi,mods=~Method*Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
-Model4_Vol<-rma.mv(yi,vi,mods=~Vol_std*Age_std,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
-Model5_Vol<-rma.mv(yi,vi,mods=~Age_std,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
-Model6_Vol<-rma.mv(yi,vi,mods=~Method+Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
-Model7_Vol<-rma.mv(yi,vi,mods=~Vol_std*Region,random=list( ~ 1 | Rare),method="ML",data=Rich_vol)
-
+Model0_Vol<-rma.mv(yi,vi,mods=~1,random=list(~ 1 | Rare),method="ML",data=Rich_samp)
+Model1_Vol<-rma.mv(yi,vi,mods=~Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
+Model2_Vol<-rma.mv(yi,vi,mods=~Method,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
+Model3_Vol<-rma.mv(yi,vi,mods=~Method*Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
+Model4_Vol<-rma.mv(yi,vi,mods=~Age_std,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
+Model5_Vol<-rma.mv(yi,vi,mods=~Method+Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
+Model_AIC<-data.frame(AICc=c(Model0_Vol$fit.stats$ML[5],Model1_Vol$fit.stats$ML[5],Model2_Vol$fit.stats$ML[5],Model3_Vol$fit.stats$ML[5],Model4_Vol$fit.stats$ML[5],Model5_Vol$fit.stats$ML[5]))
+Model_AIC$Vars<-c("Null","Volume",
+                  "Method","Volume*Method","Age","Method+Volume")
+Model_AIC$logLik<-c(Model0_Vol$fit.stats$ML[1],Model1_Vol$fit.stats$ML[1],Model2_Vol$fit.stats$ML[1],Model3_Vol$fit.stats$ML[1],Model4_Vol$fit.stats$ML[1],Model5_Vol$fit.stats$ML[1])
+Null_log<-Model0_Vol$fit.stats$ML[1]
+Model_AIC$R2<-1-(Model_AIC$logLik/Null_log)
+Model_AIC<-Model_AIC[order(Model_AIC$AICc),] #reorder from lowest to highest
+Model_AIC$delta<-Model_AIC$AICc-Model_AIC$AICc[1]#calculate AICc delta
+Model_AIC$rel_lik<-exp((Model_AIC$AICc[1]-Model_AIC$AICc)/2)#calculate the relative likelihood of model
+Model_AIC$weight<-Model_AIC$rel_lik/(sum(Model_AIC$rel_lik))
+Model_AIC$Run<-i
+Model_AIC$Rank<-seq(1,6,1)
+Model_AIC_summary<-rbind(Model_AIC,Model_AIC_summary)
 }
 
-
-#so no need to account for study only for use of reference sites
-
-
+head(Model_AIC_summary)
+Model_AIC_summary$Rank1<-ifelse(Model_AIC_summary$Rank==1,1,0)
 
 
-Model0_Vol<-rma.mv(yi,vi,mods=~1,random=list(~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model1_Vol<-rma.mv(yi,vi,mods=~Vol_std,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model2_Vol<-rma.mv(yi,vi,mods=~Method,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model3_Vol<-rma.mv(yi,vi,mods=~Method*Vol_std,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model4_Vol<-rma.mv(yi,vi,mods=~Vol_std*Age_std,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model5_Vol<-rma.mv(yi,vi,mods=~Age_std,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model6_Vol<-rma.mv(yi,vi,mods=~Method+Vol_std,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
-Model7_Vol<-rma.mv(yi,vi,mods=~Vol_std*Region,random=list( ~ 1 | Rare,~1|as.factor(M_UL)),method="ML",data=Rich_vol)
+Model_sel_boot<-ddply(Model_AIC_summary,.(Vars),summarise,Modal_rank=Mode(Rank),Prop_rank=sum(Rank1)/1000,log_liklihood=median(logLik),AICc_med=median(AICc),
+      delta_med=median(delta),R2_med=median(R2))
+
+setwd("Tables")
+write.table(Model_sel_boot,file="Rich_vol_model_sel.csv",sep=",")
 
 
-#work out model AICc
-Model_AIC<-data.frame(AICc=c(Model0_Vol$fit.stats$ML[5],Model1_Vol$fit.stats$ML[5],Model2_Vol$fit.stats$ML[5],Model3_Vol$fit.stats$ML[5],Model4_Vol$fit.stats$ML[5],Model5_Vol$fit.stats$ML[5],Model6_Vol$fit.stats$ML[5],
-                             Model7_Vol$fit.stats$ML[5]))
+#re-run top model using REML
+#bootstrapping 10,000 times to get estimates
 
-Model_AIC$Vars<-c("Null","Volume",
-                   "Method","Volume*Method","Volume*Age","Age","Method+Volume","Volume*Region")
+Site_unique<-unique(Rich_vol$M_UL)
+Param_boot<-NULL
+for (i in 1:10000){
+  print(i)
+  Rich_samp<-NULL
+  for (j in 1:length(Site_unique)){
+    Rich_sub<-subset(Rich_vol,M_UL==Site_unique[j])
+    Rich_sub<-Rich_sub[sample(nrow(Rich_sub), 1), ]
+    Rich_samp<-rbind(Rich_sub,Rich_samp)
+  }
+  Model1_Vol<-rma.mv(yi,vi,mods=~Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
+  Param_vals<-data.frame(Parameter=c("Intercept","Vol_slope"),estimate=coef(summary(Model1_Vol))[1],se=coef(summary(Model1_Vol))[2],
+             pval=coef(summary(Model1_Vol))[4],ci_lb=coef(summary(Model1_Vol))[5],ci_ub=coef(summary(Model1_Vol))[6])
+  Param_boot<-rbind(Param_vals,Param_boot)
+}
 
-(sum(Model0_Vol$sigma2) - sum(Model4_Vol$sigma2)) / sum(Model0_Vol$sigma2)
+head(Param_boot)
 
-#calculate r squared
-str(Model0_Vol)
+Param_boot2<-subset(Param_boot,Parameter=="Vol_slope")
+Param_boot3<-subset(Param_boot,Parameter=="Intercept")
 
-Null_sigma<-sum(Model0_Vol$sigma2)
-Model_AIC$sigma<-c(sum(Model0_Vol$sigma2),sum(Model1_Vol$sigma2),
-                   sum(Model2_Vol$sigma2),sum(Model3_Vol$sigma2),
-                   sum(Model4_Vol$sigma2),sum(Model5_Vol$sigma2),
-                   sum(Model6_Vol$sigma2))
-
-c(Null_sigma-Model_AIC$sigma)/Null_sigma
-
-
-#reorder from lowest to highest
-Model_AIC<-Model_AIC[order(Model_AIC$AICc),]
-#calculate AICc delta
-Model_AIC$delta<-Model_AIC$AICc-Model_AIC$AICc[1]
-
-#calculate the relative likelihood of model
-Model_AIC$rel_lik<-exp((Model_AIC$AICc[1]-Model_AIC$AICc)/2)
-#calculate the AICc weight
-Model_AIC$weight<-Model_AIC$rel_lik/(sum(Model_AIC$rel_lik))
+hist(Param_boot2$estimate)
+quantile(Param_boot2$estimate,probs=c(0.025,0.5,0.975))
+hist(Param_boot3$estimate)
+quantile(Param_boot3$estimate,probs=c(0.025,0.5,0.975))
 
 
+ddply(Param_boot,.(Parameter),summarise,coef_estimate=median(estimate),lower=median(ci.lb),
+      upper=median(ci.ub),med_pval=median(pval))
 
-setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Tables")
-write.table(Model_AIC,file="Rich_with_vol.csv",sep=",")
-
-#re-do model with REML
-Model1_reml<-rma.mv(yi,vi,mods=~Vol+Age,random=list(~1|Study, ~ 1 | Rare2),method="REML",data=Rich_vol)
-summary(Model1_reml)
+summary(Rich_vol$Vol_std)
 
 #create dataframe for predictions
+newdat<-data.frame(Vol2=seq(-1.4270,1.6150,length.out=500))
+newdat$Vol<-(newdat$Vol2*sd(Rich_vol$Vol))+mean(Rich_vol$Vol)
+newdat$yi<-(-0.01860889)+(-0.04378476*newdat$Vol2)
+newdat$LCI<-(-0.037209107)+(-0.05790845*newdat$Vol2)
+newdat$UCI<-(0.01445577)+(-0.02966108*newdat$Vol2)
 
-all<-data.frame(yi=ROM_vol$yi,vi=ROM_vol$vi,Vol=ROM_vol$Vol,Method=ROM_vol$Method,Age=ROM_vol$Age)
-summary(ROM_vol$Vol)
+(-0.037209107)+(-0.05790845*-1.427000)
+(-0.01860889)+(-0.04378476*-1.427000)
+(0.01445577)+(-0.02966108*-1.427000)
 
-summary(ROM_vol)
 
-newdat<-expand.grid(Vol=seq(5,118,length.out=500),Age=c(0,10,20))
-preds<-predict.rma(Model1_reml,newmods=cbind(c(5,50,100),c(0,0,0)),addx=T)
-?predict.rma
-
-new_preds<-data.frame(preds=preds$pred,ci.lb=preds$ci.lb,ci.ub=preds$ci.ub,Vol=newdat$Vol,Age=newdat$Age)
+head(newdat)
+ggplot(newdat,aes(x=Vol2,y=yi,ymax=UCI,ymin=LCI))+geom_ribbon()+geom_line()
 
 #plot results
 #first create x axis labels

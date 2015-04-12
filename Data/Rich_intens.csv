@@ -1,31 +1,31 @@
 Site,Study,Age,Method,M_UL,V_UL,SS_UL,M_L,V_L,SS_L,VarT,Rare,Region,Vol,Trees,Region2,RR,Plot_size,Minimum_DBH,Liana_cutting,Illegal_legal,Lat,Long
 Adekunle et al 2010a,Adekunle et al 2010,0,Conventional,46,NA,8,24,NA,8,,Not rarefied,Africa,107,,Asia/Africa,-0.28254659,0.04,48,NA,Legal,7,5
-Asase et al 2014a,Asase et al 2014,32,Conventional,16.4,3.5,10,20.2,2.5,10,SE,Not rarefied,Africa,NA,NA,Asia/Africa,0.090507521,0.0625,NA,NA,Not clear,6,-3
+Asase et al 2014a,Asase et al 2014,32,Conventional,16.4,3.5,10,20.2,2.5,10,SE,Not rarefied,Africa,NA,NA,Asia/Africa,0.090507521,0.0625,NA,NA,,6,-3
 Aubad et al 2008,Aubad et al 2008,NA,Conventional,86,2.25,25,51.75,2.75,25,SE,Not rarefied,Americas,NA,NA,Americas,-0.220588097,,,,,,
-Baraloto et al 2012,Baraloto et al 2012,20,Conventional,122,12,6,123,12,6,SD,Rarefied - Area,Americas,55,7,Americas,0.003545281,1.56,,,,,
-Berry et al 2008,Berry et al 2008,18,Conventional,407.4238,10.38382653,15,434.1605,11.48341837,15,SE,Rarefied - Individuals,Asia & Oceania,92.4,17.63941706,Asia/Africa,0.027603914,1,60,,,,
+Baraloto et al 2012,Baraloto et al 2012,20,Conventional,122,12,6,123,12,6,SD,Rarefied - Area,Americas,55,7,Americas,0.003545281,1.56,50,NA,Legal,5,-52
+Berry et al 2008,Berry et al 2008,18,Conventional,407.4238,10.38382653,15,434.1605,11.48341837,15,SE,Rarefied - Individuals,Asia & Oceania,92.4,17.63941706,Asia/Africa,0.027603914,1,60,NA,Legal,5,117
 Brown et al 2004,Brown et al 2004,50,Conventional,52.7952,-9999,3,33.0872,-9999,3,SD,Rarefied - Area,Africa,NA,NA,Asia/Africa,-0.202934423,,,,,,
 Brown et al 2004,Brown et al 2004,150,Conventional,52.7952,-9999,3,33.82,-9999,3,SD,Rarefied - Area,Africa,NA,NA,Asia/Africa,-0.193420836,,,,,,
-Burghouts e al 1994a,Burghouts e al 1994,12,Conventional,42.5,1.8,30,39.2,1.5,30,SE,Not rarefied,Asia & Oceania,100,21.78161678,Asia/Africa,-0.035102863,0.0314,,,,,
-Cannon et al 1998,Cannon et al 1998,1,Conventional,18,-9999,12,12.4,-9999,12,SD,Not rarefied,Asia & Oceania,52,10.4,Asia/Africa,-0.104146122,,50,NA,,,
-Cannon et al 1998,Cannon et al 1998,8,Conventional,18,-9999,12,13.7,-9999,12,SD,Not rarefied,Asia & Oceania,42.5,8.5,Asia/Africa,-0.104146122,,50,NA,,,
-Carreño Rocabado et al 2012,Carreño Rocabado et al 2012,0,RIL,123,1.85,9,132,1.78,12,CI,Not rarefied,Americas,10.4,2.3,Americas,0.03066882,1,,Yes,,,
-Carreño Rocabado et al 2012,Carreño Rocabado et al 2012,0,Conventional,123,1.85,9,130,1.75,23,CI,Not rarefied,Americas,9.4,2.1,Americas,0.03066882,1,,Yes,,,
-Carreño Rocabado et al 2012,Carreño Rocabado et al 2012,0,Conventional,123,1.85,9,128,1.78,23,CI,Not rarefied,Americas,14.4,4,Americas,0.03066882,1,,Yes,,,
-Foody et al 2003,Foody et al 2003,10,Conventional,21.55415,-9999,10,17.9,-9999,30,SD,Rarefied - Individuals,Asia & Oceania,118,,Asia/Africa,-0.08067787,0.05,60,,,,
-Gerwing et al 2002a,Gerwing et al 2002,5,Conventional,65,5,3,61,6,3,SD,Not rarefied,Americas,35.3,5.7,Americas,0.014608954,0.5,,,,,
-Gerwing et al 2002b,Gerwing et al 2002,5,Conventional,65,5,3,47,4,3,SD,Not rarefied,Americas,52,10,Americas,-0.181843588,0.5,,,,,
-Gourlet-Fleury et al 2013a,Gourlet-Fleury et al 2013,24,Conventional,134.11,8.936504412,9,126,8.296585643,12,SD,Not rarefied,Africa,81.16,4.5,Asia/Africa,-0.027090617,1,80,,Legal,,
-Gourlet-Fleury et al 2013a,Gourlet-Fleury et al 2013,24,Conventional,134.11,8.936504412,9,133.28,3.574284572,7,SD,Not rarefied,Africa,122.57,4.5,Asia/Africa,-0.027090617,1,80,,Legal,,
+Burghouts e al 1994a,Burghouts e al 1994,12,Conventional,42.5,1.8,30,39.2,1.5,30,SE,Not rarefied,Asia & Oceania,100,21.78161678,Asia/Africa,-0.035102863,0.0314,NA,NA,NA,5,117
+Cannon et al 1998,Cannon et al 1998,1,Conventional,18,-9999,12,12.4,-9999,12,SD,Not rarefied,Asia & Oceania,52,10.4,Asia/Africa,-0.104146122,0.2,50,NA,Legal,-1,110
+Cannon et al 1998,Cannon et al 1998,8,Conventional,18,-9999,12,13.7,-9999,12,SD,Not rarefied,Asia & Oceania,42.5,8.5,Asia/Africa,-0.104146122,0.2,50,NA,Legal,-1,110
+Carreño Rocabado et al 2012,Carreño Rocabado et al 2012,0,RIL,123,1.85,9,132,1.78,12,CI,Not rarefied,Americas,10.4,2.3,Americas,0.03066882,1,NA,Yes,Legal,-15,-63
+Carreño Rocabado et al 2012,Carreño Rocabado et al 2012,0,Conventional,123,1.85,9,130,1.75,23,CI,Not rarefied,Americas,9.4,2.1,Americas,0.03066882,1,NA,Yes,Legal,-15,-63
+Carreño Rocabado et al 2012,Carreño Rocabado et al 2012,0,Conventional,123,1.85,9,128,1.78,23,CI,Not rarefied,Americas,14.4,4,Americas,0.03066882,1,NA,Yes,Legal,-15,-63
+Foody et al 2003,Foody et al 2003,10,Conventional,21.55415,-9999,10,17.9,-9999,30,SD,Rarefied - Individuals,Asia & Oceania,118,,Asia/Africa,-0.08067787,0.05,60,No,Legal,5,117
+Gerwing et al 2002a,Gerwing et al 2002,5,Conventional,65,5,3,61,6,3,SD,Not rarefied,Americas,35.3,5.7,Americas,0.014608954,0.5,NA,NA,NA,-3,-50
+Gerwing et al 2002b,Gerwing et al 2002,5,Conventional,65,5,3,47,4,3,SD,Not rarefied,Americas,52,10,Americas,-0.181843588,0.5,NA,NA,NA,-3,-50
+Gourlet-Fleury et al 2013a,Gourlet-Fleury et al 2013,24,Conventional,134.11,8.936504412,9,126,8.296585643,12,SD,Not rarefied,Africa,81.16,4.5,Asia/Africa,-0.027090617,1,80,,Legal,4,18
+Gourlet-Fleury et al 2013a,Gourlet-Fleury et al 2013,24,Conventional,134.11,8.936504412,9,133.28,3.574284572,7,SD,Not rarefied,Africa,122.57,4.5,Asia/Africa,-0.027090617,1,80,,Legal,4,18
 Gradstein et al 2007,Gradstein et al 2007,NA,Conventional,55.8,5.5,4,48.3,4,4,SD,Not rarefied,Asia & Oceania,NA,NA,Asia/Africa,-0.062687068,0.25,,,,,
 Huang et al 2003,Huang et al 2003,10,Conventional,15.6,1.2,139,13.8,0.7,139,SE,Not rarefied,Africa,NA,NA,Asia/Africa,-0.053245512,,,,,,
-Imai et al 2012a,Imai et al 2012,9,RIL,82.5,9.3,4,79.5,10.3,4,SE,Not rarefied,Asia & Oceania,13.74,2.36,Asia/Africa,-0.01608682,,60,Yes,,,
+Imai et al 2012a,Imai et al 2012,9,RIL,82.5,9.3,4,79.5,10.3,4,SE,Not rarefied,Asia & Oceania,13.74,2.36,Asia/Africa,-0.01608682,0.2,60,Yes,Legal,5,117
 Imai et al 2012b,Imai et al 2012,7.5,Conventional,82.5,9.3,4,39.3,6.4,3,SE,Not rarefied,Asia & Oceania,NA,NA,Asia/Africa,-0.322061398,0.2,,,,,
-Medjibe et al 2013a,Medjibe et al 2013,0,RIL,224,NA,20,223,NA,20,SE,Not rarefied,Africa,5.7,0.39,Asia/Africa,-0.001943155,,,,,,
-Medjibe et al 2013b,Medjibe et al 2013,0,Conventional,157,NA,12,154,NA,12,SE,Not rarefied,Africa,11.38,0.76,Asia/Africa,-0.008378932,,,,,,
-Saiful and Latiff 2014a,Saiful and Latiff 2014,1,Conventional,166,NA,NA,125,NA,NA,SD,Not rarefied,Asia & Oceania,73.7,27,Asia/Africa,-0.123198075,,,,,,
-Villela et al 2006,Villela et al 2006,5,Conventional,40,6.2,8,45,4.5,8,SE,Not rarefied,Americas,90,36,Americas,0.051152522,0.25,,,Illegal,,
-Webb et al 1998,Webb et al 1998,1,RIL,49.0455,-9999,4,49.1647,-9999,4,SD,Rarefied - Individuals,Americas,49.2,6,Americas,0.001054227,1,70,Yes,,,
-Webb et al 1998,Webb et al 1998,0,RIL,47.0168,-9999,4,42.0048,-9999,4,SD,Rarefied - Individuals,Americas,49.2,6,Americas,-0.048954146,1,70,Yes,,,
-Gatti et al 2015a,Gatti et al 2015,,Conventional,25.785025,8.461268904,4,22.026575,6.472037794,4,SD,Not rarefied,Africa,100,20,Asia/Africa,,,,,,,
-Gatti et al 2015b,Gatti et al 2015,,Conventional,33.5504,5.41107163,3,16.52865,5.581918415,4,SD,Not rarefied,Africa,100,20,Asia/Africa,,,,,,,
+Medjibe et al 2013a,Medjibe et al 2013,0,RIL,224,NA,20,223,NA,20,SE,Not rarefied,Africa,5.7,0.39,Asia/Africa,-0.001943155,1,NA,NA,Legal,0,12
+Medjibe et al 2013b,Medjibe et al 2013,0,Conventional,157,NA,12,154,NA,12,SE,Not rarefied,Africa,11.38,0.76,Asia/Africa,-0.008378932,1,NA,NA,Legal,0,12
+Saiful and Latiff 2014a,Saiful and Latiff 2014,1,Conventional,166,NA,NA,125,NA,NA,SD,Not rarefied,Asia & Oceania,73.7,27,Asia/Africa,-0.123198075,0.09,55,NA,Legal,6,101
+Villela et al 2006,Villela et al 2006,5,Conventional,40,6.2,8,45,4.5,8,SE,Not rarefied,Americas,90,36,Americas,0.051152522,0.25,NA,NA,Illegal,-21,-41
+Webb et al 1998,Webb et al 1998,1,RIL,49.0455,-9999,4,49.1647,-9999,4,SD,Rarefied - Individuals,Americas,49.2,6,Americas,0.001054227,1,70,Yes,NA,11,-84
+Webb et al 1998,Webb et al 1998,0,RIL,47.0168,-9999,4,42.0048,-9999,4,SD,Rarefied - Individuals,Americas,49.2,6,Americas,-0.048954146,1,70,Yes,NA,11,-84
+Gatti et al 2015a,Gatti et al 2015,,Conventional,25.785025,8.461268904,4,22.026575,6.472037794,4,SD,Not rarefied,Africa,100,20,Asia/Africa,,0.125,NA,NA,NA,8,-11
+Gatti et al 2015b,Gatti et al 2015,,Conventional,33.5504,5.41107163,3,16.52865,5.581918415,4,SD,Not rarefied,Africa,100,20,Asia/Africa,,0.125,NA,NA,NA,5,-2

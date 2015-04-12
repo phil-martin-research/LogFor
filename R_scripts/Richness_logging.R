@@ -134,7 +134,7 @@ for (i in 1:10000){
     Rich_sub<-Rich_sub[sample(nrow(Rich_sub), 1), ]
     Rich_samp<-rbind(Rich_sub,Rich_samp)
   }
-  Model1_Vol<-rma.mv(yi,vi,mods=~Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
+  Model1_Vol<-rma.mv(yi,vi,mods=~Vol,random=list( ~ 1 | Rare),method="REML",data=Rich_samp)
   Param_vals<-data.frame(Parameter=c("Intercept","Vol_slope"),estimate=coef(summary(Model1_Vol))[1],se=coef(summary(Model1_Vol))[2],
              pval=coef(summary(Model1_Vol))[4],ci_lb=coef(summary(Model1_Vol))[5],ci_ub=coef(summary(Model1_Vol))[6])
   Param_boot<-rbind(Param_vals,Param_boot)
@@ -159,35 +159,30 @@ summary(Rich_vol$Vol_std)
 #create dataframe for predictions
 newdat<-data.frame(Vol2=seq(-1.4270,1.6150,length.out=500))
 newdat$Vol<-(newdat$Vol2*sd(Rich_vol$Vol))+mean(Rich_vol$Vol)
-newdat$yi<-(-0.01860889)+(-0.04378476*newdat$Vol2)
-newdat$LCI<-(-0.037209107)+(-0.05790845*newdat$Vol2)
-newdat$UCI<-(0.01445577)+(-0.02966108*newdat$Vol2)
+newdat$yi<-(0.078061590)+(-0.001484976*newdat$Vol)
+newdat$UCI<-(0.1205197213)+(-0.0009727783*newdat$Vol)
+newdat$LCI<-(0.033975199)+(-0.001997173*newdat$Vol)
 
 (-0.037209107)+(-0.05790845*-1.427000)
-(-0.01860889)+(-0.04378476*-1.427000)
-(0.01445577)+(-0.02966108*-1.427000)
+(-0.027583018)+(-0.09668837*-1.427000)
+(0.002441329)+(-0.02890387*-1.427000)
 
 
 head(newdat)
-ggplot(newdat,aes(x=Vol2,y=yi,ymax=UCI,ymin=LCI))+geom_ribbon()+geom_line()
+ggplot(newdat,aes(x=Vol,y=exp(yi)-1,ymax=UCI,ymin=LCI))+geom_ribbon()+geom_line()
 
 #plot results
 #first create x axis labels
 Vol_ax<-(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))
 theme_set(theme_bw(base_size=25))
-vol_plot<-ggplot(data=all)
-vol_plot2<-vol_plot
-vol_plot3<-vol_plot2
-vol_plot3
-vol_plot4<-vol_plot3+ylab("Proportional change in tree species richness following logging")+geom_point(shape=16,aes(x=Vol,y=exp(yi)-1,colour=Age,size=(1/vi)*5))
-
-vol_plot5<-vol_plot4+scale_size_continuous(range=c(5,10))+geom_line(data=new_preds,aes(x=Vol,y=exp(preds)-1,colour=Age,group=as.factor(Age)),size=2)+geom_hline(y=0,lty=2,size=1)
-vol_plot5
-vol_plot6<-vol_plot5+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
-vol_plot7<-vol_plot6+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))+scale_colour_brewer(palette="Set1")
-rich_vol_plot<-vol_plot7+geom_line(data=new_preds,aes(y=exp(ci.lb)-1,x=Vol),lty=3,size=1)+geom_line(data=new_preds,aes(y=exp(ci.ub)-1,x=Vol),lty=3,size=1)+theme(legend.position="none")+scale_colour_brewer(palette="Set1")
-setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
-ggsave("SR_volume.png",height=12,width=12,dpi=400)
+vol_plot<-ggplot(newdat,aes(x=Vol,y=exp(yi)-1,ymax=UCI,ymin=LCI))+geom_ribbon(alpha=0.2)+geom_line()
+vol_plot2<-vol_plot+geom_point(data=ROM_vol,aes(ymax=NULL,ymin=NULL,colour=Method,size=1/vi),shape=1)
+vol_plot3<-vol_plot2+ylab("Proportional change in tree species richness following logging")
+vol_plot4<-vol_plot3+scale_size_continuous(range=c(5,10))+geom_hline(y=0,lty=2,size=1)
+vol_plot5<-vol_plot4+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
+vol_plot6<-vol_plot5+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))+scale_colour_brewer(palette="Set1")
+rich_vol_plot<-vol_plot6+theme(legend.position="none")+scale_colour_brewer(palette="Set1")
+ggsave("Figures/SR_volume.png",height=12,width=12,dpi=400)
 
 
 #create funnel plot with residuals

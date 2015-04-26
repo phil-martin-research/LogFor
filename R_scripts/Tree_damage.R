@@ -13,8 +13,8 @@ library(nlme)
 rm(list=ls())
 
 #import data
-setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
-Dam<-read.csv("Dam_intens.csv")
+Dam<-read.csv("Data/Dam_intens.csv")
+Dam[duplicated(Dam), ]
 head(Dam)
 colnames(Dam)[3]<-"Vol2"
 Dam<-Dam[complete.cases(Dam[,7]),]
@@ -28,7 +28,8 @@ Dam$Vol_sq<-Dam$Vol2^2
 Dam$Vol_log<-log(Dam$Vol2)
 Dam$Vol_log2<-(log(Dam$Vol2))^2
 
-nrow(Dam)
+ggplot(Dam,aes(x=Vol2,y=Prop_dam2,colour=Method))+geom_point()+facet_wrap(~Study)
+
 
 #test for the effects of volume logged, non-linear volume logged (squared and log), differences in method
 #and a null model

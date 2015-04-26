@@ -6,142 +6,111 @@
 rm(list=ls())
 
 #first load packages
-library(nlme)
 library(ggplot2)
 library(MuMIn)
 library(lme4)
-library(nlme)
+library(plyr)
+library(reshape2)
 
 #load data
-setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
-Prop_dam<-read.csv("prop_damage.csv")
+Prop_dam<-read.csv("Data/prop_damage_edit2.csv")
 head(Prop_dam)
 
 length(which(!is.na(Prop_dam$Damage_prop)))
 
-colnames(Prop_dam)<-c("Study","Site_ID","Age","Method","BA_log","Prop_BA_log","Vol_log","Tree_ex_ha","Dam_tree","Dam_ha","Sev_per_tree","Severe_ha","BA_dam","Prop_ba_dam","Prop_seve_dam","Prop_dam","ID","All","Region","N_logged","Plot","Notes")
+colnames(Prop_dam)<-c("Study","Site_ID","ID","Method","Vol","Tree_ex","Dam_ha","Prop_dam","Region","Plot","Replicates")
 
 ################################################################
 #model of volume as a function of number of trees logged per ha#
 ################################################################
 
 #create dataset with only complete cases in explanatory variables
-Prop_dam_CC<-Prop_dam[complete.cases(Prop_dam[,c(7,8)]),]
-Prop_dam_CC$Tree_corr<-Prop_dam_CC$Tree_ex_ha-mean(Prop_dam_CC$Tree_ex_ha)
-str(Prop_dam_CC)
-Prop_dam_CC<-subset(Prop_dam_CC,Tree_ex_ha<20)
-M1<-lm(Vol_log~Tree_corr*Region-1,Prop_dam_CC,na.action="na.fail")
+Prop_dam_CC<-Prop_dam[complete.cases(Prop_dam[,c(5,6)]),]
+Prop_dam_CC$Tree_corr<-(Prop_dam_CC$Tree_ex-mean(Prop_dam_CC$Tree_ex,na.rm = T))/sd(Prop_dam_CC$Tree_ex,na.rm = T)
+
+ggplot(Prop_dam_CC,aes(x=Tree_ex,y=Vol,colour=Region))+geom_point()+facet_wrap(~Study)
+
+M1<-lmer(Vol~Tree_corr*Region-1+(Tree_corr|Study),Prop_dam_CC,na.action="na.fail")
 summary(M1)
 
 #look at diagnostic plots
 plot(M1)
-plot(Prop_dam_CC$Tree_corr,(predict(M1)))
-abline(a=0,b=1)
+plot(Prop_dam_CC$Tree_corr,(predict(M1,re.form=NA)))
 
 #model averaging
 ms1 <- dredge(M1,REML=F,rank =AICc,evaluate = T)
 delta7<- get.models(ms1, subset = cumsum(delta) <= 7)
 avgm <- model.avg(delta7)
+summary(avgm)
 
 #create predictions from model
-tapply(Prop_dam_CC$Tree_ex_ha,Prop_dam_CC$Region,summary)
+tapply(Prop_dam_CC$Tree_ex,Prop_dam_CC$Region,summary)
 
-Tree_pred1<-data.frame(Trees=c(seq(0.4,7.4,0.1),seq(0.2,16,0.1),seq(4.7,10.7,0.1)),Region=c(rep("Africa",71),rep("Americas",159),rep("Asia",61)))
-Tree_pred1$Tree_corr<-Tree_pred1$Trees-mean(Prop_dam_CC$Tree_ex_ha)
-Tree_pred1<-Tree_pred1[complete.cases(Tree_pred1),]
-Tree_pred1$Pred<-(predict(M1,newdata=Tree_pred1,level=0))
+Tree_pred1<-data.frame(Trees=c(seq(0.4,7.4,length.out = 500),seq(1.85,16,length.out = 500),seq(3,10.7,length.out = 500)),Region=c(rep("Africa",500),rep("Americas",500),rep("Asia",500)))
+Tree_pred1$Tree_corr<-(Tree_pred1$Trees-mean(Prop_dam_CC$Tree_ex,na.rm = T))/sd(Prop_dam_CC$Tree_ex,na.rm = T)
+Tree_pred1$Pred<-(predict(avgm,newdata=Tree_pred1,re.form=NA))
 
 #plot this prediction
 theme_set(theme_bw(base_size=12))
-Scaling_plot1<-ggplot(Prop_dam_CC,aes(x=Tree_ex_ha,y=Vol_log,colour=Region))+geom_point(size=3,shape=1)+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
+Scaling_plot1<-ggplot(Prop_dam_CC,aes(x=Tree_ex,y=Vol,colour=Region))+geom_point(size=3,shape=1,alpha=0.5)+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
 Scaling_plot2<-Scaling_plot1+xlab(expression(paste("Number of trees extracted ",ha^-1)))+ylab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))
-Scaling_plot2+geom_line(data=Tree_pred1,aes(x=Trees,y=Pred,group=Region,colour=Region),size=2)
-setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
-ggsave("Volume_trees.png",height=6,width=8,dpi=400)
+Scaling_plot2+geom_line(data=Tree_pred1,aes(x=Trees,y=Pred,group=Region,colour=Region),size=2,alpha=0.5)
+ggsave("Figures/Volume_trees.png",height=6,width=8,dpi=400)
 
 
 #merge onto dataset of other data
-Tree_pred2<-data.frame(Site_ID=Prop_dam$Site_ID,Tree_corr=Prop_dam$Tree_ex_ha-mean(Prop_dam_CC$Tree_ex_ha),Region=Prop_dam$Region)
+Tree_pred2<-data.frame(ID=Prop_dam$ID,Tree_corr=(Prop_dam$Tree_ex-mean(Prop_dam_CC$Tree_ex,na.rm = T))/sd(Prop_dam_CC$Tree_ex,na.rm = T),Region=Prop_dam$Region)
 Tree_pred2<-Tree_pred2[complete.cases(Tree_pred2),]
-Tree_pred2$Pred<-(predict(M1,newdata=Tree_pred2,level=0))
-M_Damage<-merge(Prop_dam,Tree_pred2,by="Site_ID",all=T)
+Tree_pred2$Pred<-(predict(avgm,newdata=Tree_pred2,re.form=NA))
+M_Damage<-merge(Prop_dam,Tree_pred2,by="ID",all=T)
 #put in predicted volume values where there are none where number of treesextracted is <25 per ha
-M_Damage$Vol_log2<-NULL
+M_Damage$Vol2<-NULL
 for (i in 1:nrow(M_Damage)){
-  M_Damage$Vol_log2[i]<-ifelse(is.na(M_Damage$Vol_log[i])&M_Damage$Tree_ex_ha[i]<25,M_Damage$Pred[i],M_Damage$Vol_log[i])
-}
-
-######################################################################
-#model to predict the number of trees removed from the volume logged##
-######################################################################
-
-M1<-lme(Tree_ex_ha~Vol_log*Region,random=~1|Study,Prop_dam_CC)
-
-r.squaredGLMM(M1)
-
-#diagnostic plots
-plot(M1)
-qqnorm(M1)
-
-#model averaging
-ms1 <- dredge(M1,REML=F,rank =AICc,evaluate = T)
-delta7<- get.models(ms1, subset = cumsum(delta) <= 7)
-avgm <- model.avg(delta7)
-
-
-#create dataframe for use with predictions
-Tree_pred1<-data.frame(Site_ID=Prop_dam$Site_ID,Vol_log=Prop_dam$Vol_log,Region=Prop_dam$Region)
-Tree_pred1<-Tree_pred1[complete.cases(Tree_pred1),]
-Tree_pred1$Pred<-exp(predict(M1,newdata=Tree_pred1,level=0))
-M_Damage2<-merge(M_Damage,Tree_pred1,by="Site_ID",all=T)
-
-
-#put in the number of trees extracted per ha where there are none
-for (i in 1:nrow(M_Damage2)){
-  M_Damage2$Tree_ex_ha2[i]<-ifelse(is.na(M_Damage2$Tree_ex_ha[i])&M_Damage2$Vol_log.x[i]<150,M_Damage2$Pred.y[i],M_Damage2$Tree_ex_ha[i])
+  M_Damage$Vol2[i]<-ifelse(is.na(M_Damage$Vol[i]),M_Damage$Pred[i],M_Damage$Vol[i])
 }
 
 
 ################################################################################################
 #model to predict the proportion of stems damaged from the number of trees damaged per hectare##
 ################################################################################################
-Prop_dam_CC2<-subset(Prop_dam_CC,!is.na(Dam_ha))
-Prop_dam_CC2$log_ha<-log(Prop_dam_CC2$Dam_ha)
-M1<-lm(qlogis(Prop_dam)~log_ha,data=Prop_dam_CC2)
-summary(M1)
-log_ha<-data.frame(log_ha=log(Prop_dam_CC2$Dam_ha))
-Prop_dam_CC2$Pred<-plogis(predict(M1,newdata=log_ha))
-M_Damage3<-merge(M_Damage2,Prop_dam_CC2,all=T)
+Prop_dam_CC2<-subset(Prop_dam,!is.na(Dam_ha)&!is.na(Prop_dam))
 
-M_Damage3$Prop_dam2<-NULL
-for (i in 1:nrow(M_Damage3)){
-  M_Damage3$Prop_dam2[i]<-ifelse(is.na(M_Damage3$Prop_dam[i]),M_Damage3$Pred[i],M_Damage3$Prop_dam[i])
+M1<-lmer(qlogis(Prop_dam)~(Dam_ha)*Region-1+(Dam_ha|Study),data=Prop_dam_CC2,na.action="na.fail")
+#model averaging
+ms1 <- dredge(M1,REML=F,rank =AICc,evaluate = T)
+delta7<- get.models(ms1, subset = cumsum(delta) <= 7)
+avgm <- model.avg(delta7)
+summary(avgm)
+
+#add predictions to data frame for use in further analyses
+Prop_dam_CC2$Pred<-plogis(predict(avgm,Prop_dam_CC2,re.form=NA))
+M_Damage2<-merge(M_Damage,Prop_dam_CC2,by="ID",all=T)
+head(M_Damage2)
+M_Damage2$Prop_dam2<-NULL
+for (i in 1:nrow(M_Damage2)){
+  M_Damage2$Prop_dam2[i]<-ifelse(is.na(M_Damage2$Prop_dam.x[i]),M_Damage2$Pred.y[i],M_Damage2$Prop_dam.x[i])
 }
 
-
-length(which(!is.na(M_Damage3$Prop_dam)))
-length(which(!is.na(M_Damage3$Prop_dam2)))
+#create predictions for figures
+ddply(Prop_dam_CC2,.(Region),summarise,Dam_min=min(Dam_ha),Dam_max=max(Dam_ha))
+Dam_ha<-rbind(data.frame(Dam_ha=seq(3.5,31,length.out = 50),Region="Africa"),
+              data.frame(Dam_ha=seq(10.075,191.4,length.out = 50),Region="Americas"),
+              data.frame(Dam_ha=seq(18.7,189.9,length.out = 50),Region="Asia"))
+Dam_ha$Pred<-plogis(predict(avgm,newdata=Dam_ha,re.form=NA))
 
 #make predictions for plot
-Preds<-data.frame(Dam_ha=exp(log_ha),Pred=plogis(predict(M1,newdata=log_ha)))
-colnames(Preds)<-c("Dam_ha","Pred")
-head(Preds)
+
+qplot(Prop_dam_CC2$Dam_ha,qlogis(Prop_dam_CC2$Prop_dam),colour=Prop_dam_CC2$Region)
 
 #make a plot of the relationship
-Scaling_plot1<-ggplot(M_Damage3,aes(x=Dam_ha,y=Prop_dam))+geom_point(size=3,shape=1)+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
+Scaling_plot1<-ggplot(Prop_dam_CC2,aes(x=Dam_ha,y=Prop_dam,colour=Region))+geom_point(size=3,shape=1)+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
 Scaling_plot2<-Scaling_plot1+xlab(expression(paste("Number of trees damaged ",ha^-1)))+ylab("Proportion of residual trees damaged")
-Scaling_plot2+geom_line(data=Preds,aes(x=Dam_ha,y=Pred))
-setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/LogFor/Figures")
-ggsave("Damage_coeff.png",height=6,width=8,dpi=400)
+Scaling_plot2+geom_line(data=Dam_ha,aes(x=Dam_ha,y=Pred))
+ggsave("Figures/Damage_coeff.png",height=6,width=8,dpi=400)
 
-
+str(M_Damage2)
 #now remove columns which are no use
-keeps <- c("Study","Site_ID","Vol_log2","Tree_ex_ha2","Method","Prop_dam","Prop_dam2","Prop_seve_dam","Region")
-M_Damage4<-M_Damage3[keeps]
-M_Damage4<-subset(M_Damage4,Vol_log2<200)
-M_Damage4<-subset(M_Damage4,Study!="Guariguata et al 2009")
-M_Damage4$Prop_dam2<-ifelse(M_Damage4$Study=="Whitman et al 1997",0.048,M_Damage4$Prop_dam2)
-
-setwd("C:/Users/Phil/Dropbox/Work/Active projects/PhD/Publications, Reports and Responsibilities/Chapters/5. Tropical forest degradation/Data/Fo analysis")
-write.csv(M_Damage4,"Dam_intens.csv",row.names=F)
+keeps <- c("Study.x","Site_ID.x","ID","Vol2","Method.x","Prop_dam2","Region")
+M_Damage3<-M_Damage2[keeps]
+write.csv(M_Damage3,"Data/Dam_intens.csv",row.names=F)
 

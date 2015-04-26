@@ -79,8 +79,10 @@ points(Rom_plot$Plot_size,predict(Plot_ML2),col="red")
 head(AGB)
 
 for (i in 1:nrow(AGB)){
-  AGB$SDU[i]<-ifelse(is.na(AGB$SDU[i]),0.13158+(-0.11724*(log(AGB$Plot_size))),AGB$SDU[i])
-  AGB$SDL[i]<-ifelse(is.na(AGB$SDL[i]),0.16967+(-0.15899*(log(AGB$Plot_size))),AGB$SDU[i])
+  AGB$SDL[i]<-ifelse(AGB$Plot_size[i]<=4&is.na(AGB$SDU[i]),(0.13333+(-0.17945*(log(AGB$Plot_size[i]))))*AGB$ML,AGB$SDU[i])
+  AGB$SDU[i]<-ifelse(AGB$Plot_size[i]<=4&is.na(AGB$SDU[i]),(0.13870+(-0.12938*(log(AGB$Plot_size[i]))))*AGB$MUL,AGB$SDU[i]) 
+  AGB$SDU[i]<-ifelse(AGB$Plot_size[i]>=4&is.na(AGB$SDU[i]),0.15*AGB$MUL,AGB$SDU[i])
+  AGB$SDL[i]<-ifelse(AGB$Plot_size[i]>=4&is.na(AGB$SDU[i]),0.1*AGB$ML,AGB$SDL[i]) 
 }
 
 
@@ -93,11 +95,11 @@ AGB_vol<-subset(AGB,Vol2>0)
 
 #log ratio effect size calculation for results with volume
 ROM2<-escalc(data=AGB_vol,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
-ROM2<-subset(ROM2,Vol>0)
 write.csv(ROM2,"Data/AGB_studies_vol.csv")
 
 #replace conventional with 1 and RIl with 0
 ROM2$Method2<-as.factor(ifelse(ROM2$Method=="Conventional",1,0))
+
 
 #different models relating volume and method to post logging change
 Site_unique<-unique(ROM2$MU)
@@ -120,32 +122,29 @@ for (i in 1:10000){
   Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method,random=list(~1|Study.x),method="ML",data=AGB_samp)
   Model8<-rma.mv(yi,vi,mods=~Vol2*Age,random=list(~1|Study.x),method="ML",data=AGB_samp)
   Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2),random=list(~1|Study.x),method="ML",data=AGB_samp)
-  Model10<-rma.mv(yi,vi,mods=~Vol2*Region,random=list(~1|Study.x),method="ML",data=AGB_samp)
   Model_AIC<-data.frame(AICc=c(Model0$fit.stats$ML[5],Model1$fit.stats$ML[5],Model2$fit.stats$ML[5],
                                Model3$fit.stats$ML[5],Model4$fit.stats$ML[5],Model5$fit.stats$ML[5],
                                Model6$fit.stats$ML[5],Model7$fit.stats$ML[5],Model8$fit.stats$ML[5],
-                               Model9$fit.stats$ML[5],Model10$fit.stats$ML[5]))
+                               Model9$fit.stats$ML[5]))
   Model_AIC$Vars<-c("Null","Age","Volume","Method","Volume*Method","Volume*Age+Volume*Method",
-                    "Voume+Volume^2","Volume*Method+Volume^2*Method","Volume*Age","Volume*Method+Vol^2",
-                    "Volume^2*Region")
+                    "Voume+Volume^2","Volume*Method+Volume^2*Method","Volume*Age","Volume*Method+Vol^2")
   Model_AIC$logLik<-c(Model0$fit.stats$ML[1],Model1$fit.stats$ML[1],Model2$fit.stats$ML[1],
                        Model3$fit.stats$ML[1],Model4$fit.stats$ML[1],Model5$fit.stats$ML[1],
                        Model6$fit.stats$ML[1],Model7$fit.stats$ML[1],Model8$fit.stats$ML[1],
-                       Model9$fit.stats$ML[1],Model10$fit.stats$ML[1])
-  Null_sigma<-Model0$sigma2
-  Sigma<-c(Model0$sigma2,Model1$sigma2,Model2$sigma2,Model3$sigma2,Model4$sigma2,Model5$sigma2,Model6$sigma2,
-           Model7$sigma2,Model8$sigma2,Model9$sigma2,Model10$sigma2)
-  Model_AIC$R2<-(Null_sigma-Sigma)/Null_sigma
+                       Model9$fit.stats$ML[1])
+  Null_dev<-deviance(Model0)
+  Dev<-c(deviance(Model0),deviance(Model1),deviance(Model2),deviance(Model3),deviance(Model4),deviance(Model5),
+           deviance(Model6),deviance(Model7),deviance(Model8),deviance(Model9))
+  Model_AIC$R2<-1-(Dev/Null_dev)
   Model_AIC$R2<-ifelse(Model_AIC$R2<0,0,Model_AIC$R2)
   Model_AIC<-Model_AIC[order(Model_AIC$AICc),] #reorder from lowest to highest
   Model_AIC$delta<-Model_AIC$AICc-Model_AIC$AICc[1]#calculate AICc delta
   Model_AIC$rel_lik<-exp((Model_AIC$AICc[1]-Model_AIC$AICc)/2)#calculate the relative likelihood of model
   Model_AIC$weight<-Model_AIC$rel_lik/(sum(Model_AIC$rel_lik))
   Model_AIC$Run<-i
-  Model_AIC$Rank<-seq(1,11,1)
+  Model_AIC$Rank<-seq(1,10,1)
   Model_AIC_summary<-rbind(Model_AIC,Model_AIC_summary)
 }
-
 
 head(Model_AIC_summary)
 Model_AIC_summary$Rank1<-ifelse(Model_AIC_summary$Rank==1,1,0)
@@ -158,7 +157,7 @@ write.csv(Model_sel_boot,file="Tables/AGB_mod_sel.csv")
 #now bootstrap to give predictions
 Site_unique<-unique(ROM2$MU)
 Param_boot<-NULL
-for (i in 1:10000){
+for (i in 1:100){
   print(i)
   AGB_samp<-NULL
   for (j in 1:length(Site_unique)){
@@ -166,8 +165,8 @@ for (i in 1:10000){
     AGB_sub<-AGB_sub[sample(nrow(AGB_sub), 1), ]
     AGB_samp<-rbind(AGB_sub,AGB_samp)
   }
-  Model1_Vol<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|Study.x),method="REML",data=AGB_samp)
-  Param_vals<-data.frame(Parameter=c("Intercept","Vol_slope"),estimate=coef(summary(Model1_Vol))[1],se=coef(summary(Model1_Vol))[2],
+  Model1_Vol<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|Study.x),method="REML",data=AGB_samp)
+  Param_vals<-data.frame(Parameter=c("Intercept","Vol_slope","Method_RIL","Volume*Method_RIL"),estimate=coef(summary(Model1_Vol))[1],se=coef(summary(Model1_Vol))[2],
                          pval=coef(summary(Model1_Vol))[4],ci_lb=coef(summary(Model1_Vol))[5],ci_ub=coef(summary(Model1_Vol))[6])
   Param_boot<-rbind(Param_vals,Param_boot)
 }
@@ -177,9 +176,9 @@ Param_boot_sum<-ddply(Param_boot,.(Parameter),summarise,coef_estimate=median(est
 
 write.table(Param_boot_sum,file="Tables/Rich_parameter_estimates.csv",sep=",")
 
-summary(ROM2$Vol2)
+ddply(ROM2,.(Method),summarise,maxvol=max(Vol2),min_vol=min(Vol2))
 #create dataframe for predictions
-newdat<-data.frame(Vol=seq(5.7,179,length.out=500))
+newdat<-data.frame(Vol=seq(5.7,179,length.out=500),Method=)
 newdat$yi<-Param_boot_sum$coef_estimate[1]+(newdat$Vol*Param_boot_sum$coef_estimate[2])
 newdat$UCI<-(Param_boot_sum$upper[1])+(Param_boot_sum$upper[2]*newdat$Vol)
 newdat$LCI<-(Param_boot_sum$lower[1])+(Param_boot_sum$lower[2]*newdat$Vol)

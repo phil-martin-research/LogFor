@@ -1,29 +1,31 @@
-Study,Response ratio,Effect size variance,Volume logged (m3 ha-1),Time since logging,Method,Region,Plot size (ha),Minimum DBH of trees cut (cm),Lianas cut prior to logging,Illegal/Legal,Extaction methods,Planned road building & skidder routes,Planned extraction,Directional felling,Lighter machinery,Training,Supervision,Silvicultural treatments,Exclusion of steep slopes
-Berry et al 2010,-0.765250474,0.062051471,97.2,0,Conventional,Asia & Oceania,0.1,60,NA,Legal,High lead cable & tractor,NA,NA,NA,NA,NA,NA,NA,NA
-Berry et al 2010,-0.444251133,0.037884361,97.2,18,Conventional,Asia & Oceania,0.1,60,NA,Legal,High lead cable & tractor,NA,NA,NA,NA,NA,NA,NA,NA
-Bryan et al 2010,-0.206046044,0.001328925,10.7,1,RIL,Asia & Oceania,NA,50,Yes,Legal,Bulldozer,Yes,Yes,NA,NA,NA,NA,NA,Yes
-Bryan et al 2010,-0.383734707,0.002425979,10.7,1,RIL,Asia & Oceania,NA,50,Yes,Legal,Bulldozer,Yes,Yes,NA,NA,NA,NA,NA,Yes
-d'Oliveira et al 2012,-0.071905966,0.003935033,6.9,1,Conventional,Americas,1,35,NA,Legal,NA,NA,Yes,NA,NA,NA,NA,NA,Yes
-Gerwing et al 2002,-0.264692554,0.012159221,35.3,5,Conventional,Americas,0.5,NA,NA,NA,NA,NA,Yes,NA,NA,NA,NA,NA,NA
-Gerwing et al 2002,-0.555747311,0.018203069,69,5,Conventional,Americas,0.5,NA,NA,NA,NA,NA,Yes,NA,NA,NA,NA,NA,NA
-Gourlet-Fleury et al 2013,-0.305241609,0.007347943,66,0,Conventional,Africa,4,80,Yes,Legal,Tractor,Yes,NA,NA,NA,NA,NA,No,NA
-Imai et al 2013,-0.380723618,0.045417259,13.74,8,RIL,Asia & Oceania,NA,60,Yes,Legal,NA,Yes,Yes,NA,NA,NA,NA,NA,Yes
-Mazzei et al 2010,-0.26193947,0.003966588,21,0,RIL,Americas,1,55,NA,Legal,NA,NA,Yes,Yes,NA,NA,NA,NA,NA
-Medjibe et al 2011,-0.084799484,0.010680484,8.11,0,RIL,Africa,1,NA,NA,Legal,Skidder,Yes,Yes,Yes,NA,Yes,NA,NA,NA
-Medjibe et al 2013,-0.07364654,0.052152328,5.7,0,RIL,Africa,1,NA,NA,Legal,Tractor,Yes,Yes,NA,NA,Yes,NA,NA,NA
-Medjibe et al 2013,-0.14387037,0.043750637,11.4,0,Conventional,Africa,1,NA,NA,Legal,Tractor,Yes,Yes,Yes,NA,Yes,NA,NA,NA
-Pfeifer et al 2014,-1.491539799,0.455127842,179,10,Conventional,Asia & Oceania,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pfeifer et al 2014,-1.805071817,1.427240959,150,10,Conventional,Asia & Oceania,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pfeifer et al 2014,-1.209627999,0.459974399,150,10,Conventional,Asia & Oceania,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pfeifer et al 2014,-1.209492527,0.512644055,150,10,Conventional,Asia & Oceania,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pfeifer et al 2014,-1.868559913,0.925099152,179,10,Conventional,Asia & Oceania,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pfeifer et al 2014,-1.133926002,0.400629179,150,10,Conventional,Asia & Oceania,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pfeifer et al 2014,-2.39946484,2.603916242,179,10,Conventional,Asia & Oceania,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pfeifer et al 2014,-2.127139425,1.526171728,179,10,Conventional,Asia & Oceania,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pfeifer et al 2014,-2.263446148,1.99268285,179,10,Conventional,Asia & Oceania,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pfeifer et al 2014,-2.10608434,1.46478868,179,10,Conventional,Asia & Oceania,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pinard et al 1996,-0.898369691,0.026223191,154.482125,0,Conventional,Asia & Oceania,0.16,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Pinard et al 1996,-0.436062185,0.023080737,103.5835,0,RIL,Asia & Oceania,0.16,60,Yes,Legal,Bulldozer,Yes,Yes,Yes,NA,Yes,NA,NA,Yes
-Rockwell et al 2014,-0.078507451,0.028916089,10,1,Conventional,Americas,0.5,45,NA,NA,Tractor,NA,Yes,NA,NA,NA,NA,NA,NA
-Saner et al 2012,-0.331329235,0.032220222,117.38,0,Conventional,Asia & Oceania,0.25,60,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Tangki et al 2008,-0.672026521,0.012112882,101.2,11,Conventional,Asia & Oceania,0.1,60,NA,Legal,High lead cable & tractor,NA,NA,NA,NA,NA,NA,Yes,NA
+Study,Study,Response ratio,Effect size variance,Volume logged (m3 ha-1),Time since logging,Method,Region,Plot size (ha),Minimum DBH of trees cut (cm),Lianas cut prior to logging,Illegal/Legal,Extaction methods,Planned road building & skidder routes,Planned extraction,Directional felling,Lighter machinery,Training,Supervision,Silvicultural treatments,Exclusion of steep slopes
+Berry et al 2010,Berry et al 2010,-0.765250474,0.062051471,97.2,0,Conventional,Asia,0.1,60,NA,Legal,High lead cable & tractor,NA,NA,NA,NA,NA,NA,NA,NA
+Berry et al 2010,Berry et al 2010,-0.444251133,0.037884361,97.2,18,Conventional,Asia,0.1,60,NA,Legal,High lead cable & tractor,NA,NA,NA,NA,NA,NA,NA,NA
+Bryan et al 2010,Bryan et al 2010,-0.206046044,0.001328925,10.7,1,RIL,Asia,NA,50,Yes,Legal,Bulldozer,Yes,Yes,NA,NA,NA,NA,NA,Yes
+Bryan et al 2010,Bryan et al 2010,-0.383734707,0.002425979,10.7,1,RIL,Asia,NA,50,Yes,Legal,Bulldozer,Yes,Yes,NA,NA,NA,NA,NA,Yes
+d'Oliveira et al 2012,d'Oliveira et al 2012,-0.071905966,0.003935033,6.9,1,Conventional,Americas,1,35,NA,Legal,NA,NA,Yes,NA,NA,NA,NA,NA,Yes
+Gerwing et al 2002,Gerwing et al 2002,-0.264692554,0.012159221,35.3,5,Conventional,Americas,0.5,NA,NA,NA,NA,NA,Yes,NA,NA,NA,NA,NA,NA
+Gerwing et al 2002,Gerwing et al 2002,-0.555747311,0.018203069,69,5,Conventional,Americas,0.5,NA,NA,NA,NA,NA,Yes,NA,NA,NA,NA,NA,NA
+Gourlet-Fleury et al 2013,Gourlet-Fleury et al 2013,-0.305241609,0.007347943,66,0,Conventional,Africa,4,80,Yes,Legal,Tractor,Yes,NA,NA,NA,NA,NA,No,NA
+Imai et al 2013,Imai et al 2013,-0.380723618,0.045417259,13.74,8,RIL,Asia,NA,60,Yes,Legal,NA,Yes,Yes,NA,NA,NA,NA,NA,Yes
+Mazzei et al 2010,Mazzei et al 2010,-0.26193947,0.003966588,21,0,RIL,Americas,1,55,NA,Legal,NA,NA,Yes,Yes,NA,NA,NA,NA,NA
+Medjibe et al 2011,Medjibe et al 2011,-0.084799484,0.010680484,8.11,0,RIL,Africa,1,NA,NA,Legal,Skidder,Yes,Yes,Yes,NA,Yes,NA,NA,NA
+Medjibe et al 2013,Medjibe et al 2011,-0.084799484,0.010680484,8.11,0,RIL,Africa,1,NA,NA,Legal,Skidder,Yes,Yes,Yes,NA,Yes,NA,NA,NA
+Medjibe et al 2013,Medjibe et al 2013,-0.07364654,0.052152328,5.7,0,RIL,Africa,1,NA,NA,Legal,Tractor,Yes,Yes,NA,NA,Yes,NA,NA,NA
+Medjibe et al 2013,Medjibe et al 2013,-0.07364654,0.052152328,5.7,0,RIL,Africa,1,NA,NA,Legal,Tractor,Yes,Yes,NA,NA,Yes,NA,NA,NA
+Medjibe et al 2013,Medjibe et al 2013,-0.14387037,0.043750637,11.4,0,Conventional,Africa,1,NA,NA,Legal,Tractor,Yes,Yes,Yes,NA,Yes,NA,NA,NA
+Pfeifer et al 2014,Pfeifer et al 2014,-1.491539799,0.455127842,179,10,Conventional,Asia,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pfeifer et al 2014,Pfeifer et al 2014,-1.805071817,1.427240959,150,10,Conventional,Asia,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pfeifer et al 2014,Pfeifer et al 2014,-1.209627999,0.459974399,150,10,Conventional,Asia,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pfeifer et al 2014,Pfeifer et al 2014,-1.209492527,0.512644055,150,10,Conventional,Asia,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pfeifer et al 2014,Pfeifer et al 2014,-1.868559913,0.925099152,179,10,Conventional,Asia,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pfeifer et al 2014,Pfeifer et al 2014,-1.133926002,0.400629179,150,10,Conventional,Asia,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pfeifer et al 2014,Pfeifer et al 2014,-2.39946484,2.603916242,179,10,Conventional,Asia,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pfeifer et al 2014,Pfeifer et al 2014,-2.127139425,1.526171728,179,10,Conventional,Asia,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pfeifer et al 2014,Pfeifer et al 2014,-2.263446148,1.99268285,179,10,Conventional,Asia,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pfeifer et al 2014,Pfeifer et al 2014,-2.10608434,1.46478868,179,10,Conventional,Asia,0.0625,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pinard et al 1996,Pinard et al 1996,-0.898369691,0.026223191,154.482125,0,Conventional,Asia,0.16,NA,NA,Legal,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Pinard et al 1996,Pinard et al 1996,-0.436062185,0.023080737,103.5835,0,RIL,Asia,0.16,60,Yes,Legal,Bulldozer,Yes,Yes,Yes,NA,Yes,NA,NA,Yes
+Rockwell et al 2014,Rockwell et al 2014,-0.078507451,0.028916089,10,1,Conventional,Americas,0.5,45,NA,NA,Tractor,NA,Yes,NA,NA,NA,NA,NA,NA
+Saner et al 2012,Saner et al 2012,-0.331329235,0.032220222,117.38,0,Conventional,Asia,0.25,60,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Tangki et al 2008,Tangki et al 2008,-0.672026521,0.012112882,101.2,11,Conventional,Asia,0.1,60,NA,Legal,High lead cable & tractor,NA,NA,NA,NA,NA,NA,Yes,NA

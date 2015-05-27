@@ -1,20 +1,20 @@
-Study,Response ratio,Effect size variance,Vol,Time since logging,Method,Region,Plot_size,Minmum DBH cut,Lianas cut,Illegal/Legal,Rarefied
-Baraloto et al 2012,0.0082,0.0032,55,20,Conventional,Americas,1.56,50,NA,Legal,R
-Berry et al 2008,0.0636,0.0013,92.4,18,Conventional,Asia,1,60,NA,Legal,R
-Burghouts e al 1994,-0.0808,0.0033,100,12,Conventional,Asia,0.0314,NA,NA,NA,NR
-Cannon et al 1998,-0.3727,0.0059,52,1,Conventional,Asia,0.2,50,NA,Legal,NR
-Cannon et al 1998,-0.2730,0.0064,42.5,8,Conventional,Asia,0.2,50,NA,Legal,NR
-Carreño Rocabado et al 2012,0.0706,0.0001,10.4,0,RIL,Americas,1,NA,Yes,Legal,NR
-Carreño Rocabado et al 2012,0.0554,0.0001,9.4,0,Conventional,Americas,1,NA,Yes,Legal,NR
-Carreño Rocabado et al 2012,0.0398,0.0001,14.4,0,Conventional,Americas,1,NA,Yes,Legal,NR
-Foody et al 2003,-0.1858,0.0139,118,10,Conventional,Asia,0.05,60,No,Legal,R
-Gerwing et al 2002,-0.0635,0.0052,35.3,5,Conventional,Americas,0.5,NA,NA,NA,NR
-Gerwing et al 2002,-0.3242,0.0044,52,5,Conventional,Americas,0.5,NA,NA,NA,NR
-Gourlet-Fleury et al 2013,-0.0624,0.0009,81.16,24,Conventional,Africa,1,80,,Legal,NR
-Gourlet-Fleury et al 2013,-0.0062,0.0006,122.57,24,Conventional,Africa,1,80,,Legal,NR
-Imai et al 2012,-0.0370,0.0295,13.74,9,RIL,Asia,0.2,60,Yes,Legal,NR
-Villela et al 2006,0.1178,0.0340,90,5,Conventional,Americas,0.25,NA,NA,Illegal,NR
-Webb et al 1998,0.0024,0.0022,49.2,1,RIL,Americas,1,70,Yes,NA,R
-Webb et al 1998,-0.1127,0.0020,49.2,0,RIL,Americas,1,70,Yes,NA,R
-Gatti et al 2015,-0.1575,0.0485,100,15,Conventional,Africa,0.125,NA,NA,NA,NR
-Gatti et al 2015,-0.7080,0.0372,100,15,Conventional,Africa,0.125,NA,NA,NA,NR
+Study,Response ratio,Effect size variance,Vol,Time since logging,Method,Region,Plot_size,Minmum DBH cut,Lianas cut,Illegal/Legal,Rarefied,Extraction methods,Planned road building & skidder routes,Planned extraction,Directional felling,Lighter machinery,Training,Supervision,Silvicultural treatments,Exclusion of steep slopes
+Baraloto et al 2012,0.0082,0.0032,55,20,Conventional,Americas,1.56,50,NA,Legal,R,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Berry et al 2008,0.0636,0.0013,92.4,18,Conventional,Asia,1,60,NA,Legal,R,High lead cable & tractor,,NA,NA,NA,NA,NA,NA,NA
+Burghouts e al 1994,-0.0808,0.0033,100,12,Conventional,Asia,0.0314,NA,NA,NA,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Cannon et al 1998,-0.3727,0.0059,52,1,Conventional,Asia,0.2,50,NA,Legal,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Cannon et al 1998,-0.273,0.0064,42.5,8,Conventional,Asia,0.2,50,NA,Legal,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Carreño Rocabado et al 2012,0.0706,0.0001,10.4,0,RIL,Americas,1,NA,Yes,Legal,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Carreño Rocabado et al 2012,0.0554,0.0001,9.4,0,Conventional,Americas,1,NA,Yes,Legal,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Carreño Rocabado et al 2012,0.0398,0.0001,14.4,0,Conventional,Americas,1,NA,Yes,Legal,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Foody et al 2003,-0.1858,0.0139,118,10,Conventional,Asia,0.05,60,No,Legal,R,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Gerwing et al 2002,-0.0635,0.0052,35.3,5,Conventional,Americas,0.5,NA,NA,NA,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Gerwing et al 2002,-0.3242,0.0044,52,5,Conventional,Americas,0.5,NA,NA,NA,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Gourlet-Fleury et al 2013,-0.0624,0.0009,81.16,24,Conventional,Africa,1,80,,Legal,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Gourlet-Fleury et al 2013,-0.0062,0.0006,122.57,24,Conventional,Africa,1,80,,Legal,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Imai et al 2012,-0.037,0.0295,13.74,9,RIL,Asia,0.2,60,Yes,Legal,NR,NA,Yes,Yes,Yes,NA,NA,NA,NA,Yes
+Villela et al 2006,0.1178,0.034,90,5,Conventional,Americas,0.25,NA,NA,Illegal,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Webb et al 1998,0.0024,0.0022,49.2,1,RIL,Americas,1,70,Yes,NA,R,Small bulldozer,Yes,Yes,Yes,Yes,NA,NA,NA,NA
+Webb et al 1998,-0.1127,0.002,49.2,0,RIL,Americas,1,70,Yes,NA,R,Small bulldozer,Yes,Yes,Yes,Yes,NA,NA,NA,NA
+Gatti et al 2015,-0.1575,0.0485,100,15,Conventional,Africa,0.125,NA,NA,NA,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Gatti et al 2015,-0.708,0.0372,100,15,Conventional,Africa,0.125,NA,NA,NA,NR,NA,NA,NA,NA,NA,NA,NA,NA,NA

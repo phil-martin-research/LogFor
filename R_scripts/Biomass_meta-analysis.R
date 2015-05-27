@@ -4,7 +4,7 @@
 #######################################################################################
 
 #name: Phil Martin
-#date:31/08/2014
+#date:28/04/2015
 
 #clear objects
 rm(list=ls())
@@ -25,7 +25,7 @@ Mode <- function(x) {
 ###########################################################################################
 #Organise data before analysis#############################################################
 ###########################################################################################
-AGB<-read.csv("Data/AGB_intens.csv")
+AGB<-read.csv("Data/AGB.csv")
 
 #recalculate SDs
 #unlogged
@@ -37,10 +37,9 @@ AGB$SDL<-ifelse(AGB$VarT=="SE",AGB$VL*sqrt(AGB$SSL),AGB$VL)
 AGB$SDL<-ifelse(AGB$VarT=="CI",(AGB$VL/1.96)*sqrt(AGB$SSL),AGB$SDL)
 head(AGB)
 
-
 #calculate effect sizes
 #log ratio
-ROM<-escalc(data=AGB,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
+ROM<-escalc(data=AGB,measure="MD",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
 ROM
 
 
@@ -94,8 +93,18 @@ for (i in 1:nrow(AGB)){
 AGB_vol<-subset(AGB,Vol2>0)
 
 #log ratio effect size calculation for results with volume
-ROM2<-escalc(data=AGB_vol,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
+ROM2<-escalc(data=AGB_vol,measure="MD",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
+ROM2<-subset(ROM2,!is.na(vi))
 write.csv(ROM2,"Data/AGB_studies_vol.csv")
+
+
+Model0<-rma.mv(yi,vi,mods=~ML*Vol,random=list(~1|Study),method="ML",data=ROM2)
+summary(Model0)
+
+
+new.data1<-expand.grid(ML=seq(100,550,10),Vol=seq(7,180,10))
+new.data1$Pred<-68.3780-(0.4636*new.data1$ML)-(2.9943*new.data1$Vol)+(0.0094*(new.data1$Vol*new.data1$ML))
+
 
 #replace conventional with 1 and RIl with 0
 ROM2$Method2<-as.factor(ifelse(ROM2$Method=="Conventional",1,0))
@@ -112,16 +121,16 @@ for (i in 1:10000){
     AGB_sub<-AGB_sub[sample(nrow(AGB_sub), 1), ]
     AGB_samp<-rbind(AGB_sub,AGB_samp)
   }
-  Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|Study.x),method="ML",data=AGB_samp)
-  Model1<-rma.mv(yi,vi,mods=~Age,random=list(~1|Study.x),method="ML",data=AGB_samp)
-  Model2<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|Study.x),method="ML",data=AGB_samp)
-  Model3<-rma.mv(yi,vi,mods=~Method,random=list(~1|Study.x),method="ML",data=AGB_samp)
-  Model4<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|Study.x),method="ML",data=AGB_samp)
-  Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method,random=list(~1|Study.x),method="ML",data=AGB_samp)
-  Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2),random=list(~1|Study.x),method="ML",data=AGB_samp)
-  Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method,random=list(~1|Study.x),method="ML",data=AGB_samp)
-  Model8<-rma.mv(yi,vi,mods=~Vol2*Age,random=list(~1|Study.x),method="ML",data=AGB_samp)
-  Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2),random=list(~1|Study.x),method="ML",data=AGB_samp)
+  Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|Study),method="ML",data=AGB_samp)
+  Model1<-rma.mv(yi,vi,mods=~Age,random=list(~1|Study),method="ML",data=AGB_samp)
+  Model2<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|Study),method="ML",data=AGB_samp)
+  Model3<-rma.mv(yi,vi,mods=~Method,random=list(~1|Study),method="ML",data=AGB_samp)
+  Model4<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|Study),method="ML",data=AGB_samp)
+  Model5<-rma.mv(yi,vi,mods=~Vol2*Age+Vol2*Method,random=list(~1|Study),method="ML",data=AGB_samp)
+  Model6<-rma.mv(yi,vi,mods=~Vol2+I(Vol2^2),random=list(~1|Study),method="ML",data=AGB_samp)
+  Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method,random=list(~1|Study),method="ML",data=AGB_samp)
+  Model8<-rma.mv(yi,vi,mods=~Vol2*Age,random=list(~1|Study),method="ML",data=AGB_samp)
+  Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2),random=list(~1|Study),method="ML",data=AGB_samp)
   Model_AIC<-data.frame(AICc=c(Model0$fit.stats$ML[5],Model1$fit.stats$ML[5],Model2$fit.stats$ML[5],
                                Model3$fit.stats$ML[5],Model4$fit.stats$ML[5],Model5$fit.stats$ML[5],
                                Model6$fit.stats$ML[5],Model7$fit.stats$ML[5],Model8$fit.stats$ML[5],
@@ -157,7 +166,7 @@ write.csv(Model_sel_boot,file="Tables/AGB_mod_sel.csv")
 #now bootstrap to give predictions
 Site_unique<-unique(ROM2$MU)
 Param_boot<-NULL
-for (i in 1:100){
+for (i in 1:10000){
   print(i)
   AGB_samp<-NULL
   for (j in 1:length(Site_unique)){
@@ -165,8 +174,8 @@ for (i in 1:100){
     AGB_sub<-AGB_sub[sample(nrow(AGB_sub), 1), ]
     AGB_samp<-rbind(AGB_sub,AGB_samp)
   }
-  Model1_Vol<-rma.mv(yi,vi,mods=~Vol2*Method,random=list(~1|Study.x),method="REML",data=AGB_samp)
-  Param_vals<-data.frame(Parameter=c("Intercept","Vol_slope","Method_RIL","Volume*Method_RIL"),estimate=coef(summary(Model1_Vol))[1],se=coef(summary(Model1_Vol))[2],
+  Model1_Vol<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|Study),method="REML",data=AGB_samp)
+  Param_vals<-data.frame(Parameter=c("Intercept","Vol_slope"),estimate=coef(summary(Model1_Vol))[1],se=coef(summary(Model1_Vol))[2],
                          pval=coef(summary(Model1_Vol))[4],ci_lb=coef(summary(Model1_Vol))[5],ci_ub=coef(summary(Model1_Vol))[6])
   Param_boot<-rbind(Param_vals,Param_boot)
 }
@@ -178,7 +187,7 @@ write.table(Param_boot_sum,file="Tables/Rich_parameter_estimates.csv",sep=",")
 
 ddply(ROM2,.(Method),summarise,maxvol=max(Vol2),min_vol=min(Vol2))
 #create dataframe for predictions
-newdat<-data.frame(Vol=seq(5.7,179,length.out=500),Method=)
+newdat<-data.frame(Vol=seq(5.7,179,length.out=500))
 newdat$yi<-Param_boot_sum$coef_estimate[1]+(newdat$Vol*Param_boot_sum$coef_estimate[2])
 newdat$UCI<-(Param_boot_sum$upper[1])+(Param_boot_sum$upper[2]*newdat$Vol)
 newdat$LCI<-(Param_boot_sum$lower[1])+(Param_boot_sum$lower[2]*newdat$Vol)

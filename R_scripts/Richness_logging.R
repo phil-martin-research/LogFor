@@ -105,9 +105,9 @@ Model4_Vol<-rma.mv(yi,vi,mods=~Age_std,random=list( ~ 1 | Rare),method="ML",data
 Model_AIC<-data.frame(AICc=c(Model0_Vol$fit.stats$ML[5],Model1_Vol$fit.stats$ML[5],Model2_Vol$fit.stats$ML[5],Model3_Vol$fit.stats$ML[5],Model4_Vol$fit.stats$ML[5]))
 Model_AIC$Vars<-c("Null","Volume",
                   "Method","Volume*Method","Age")
-Model_AIC$logLik<-c(Model0_Vol$fit.stats$ML[1],Model1_Vol$fit.stats$ML[1],Model2_Vol$fit.stats$ML[1],Model3_Vol$fit.stats$ML[1],Model4_Vol$fit.stats$ML[1])
-Null_log<-Model0_Vol$fit.stats$ML[1]
-Model_AIC$R2<-1-(Model_AIC$logLik/Null_log)
+Model_AIC$dev<-c(deviance(Model0_Vol),deviance(Model1_Vol),deviance(Model2_Vol),deviance(Model3_Vol),deviance(Model4_Vol))
+Null_log<-deviance(Model0_Vol)
+Model_AIC$R2<-1-(Model_AIC$dev/Null_log)
 Model_AIC<-Model_AIC[order(Model_AIC$AICc),] #reorder from lowest to highest
 Model_AIC$delta<-Model_AIC$AICc-Model_AIC$AICc[1]#calculate AICc delta
 Model_AIC$rel_lik<-exp((Model_AIC$AICc[1]-Model_AIC$AICc)/2)#calculate the relative likelihood of model

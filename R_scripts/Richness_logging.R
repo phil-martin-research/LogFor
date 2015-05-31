@@ -147,7 +147,7 @@ for (i in 1:10000){
 }
 
 Param_boot_sum<-ddply(Param_boot,.(Parameter),summarise,coef_estimate=median(estimate),lower=median(ci.lb),
-      upper=median(ci.ub),med_pval=median(pval))
+      upper=median(ci.ub),med_pval=median(pval),se=median(se))
 
 write.table(Param_boot_sum,file="Tables/Rich_parameter_estimates.csv",sep=",")
 

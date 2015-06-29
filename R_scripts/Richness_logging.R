@@ -88,6 +88,7 @@ Rich_vol$Vol_std<-(Rich_vol$Vol-mean(Rich_vol$Vol))/sd(Rich_vol$Vol)
 Rich_vol$Age_std<-(Rich_vol$Age-mean(Rich_vol$Age))/sd(Rich_vol$Age)
 
 Site_unique<-unique(Rich_vol$M_UL)
+
 Model_AIC_summary<-NULL
 for (i in 1:10000){
 print(i)
@@ -97,15 +98,14 @@ for (j in 1:length(Site_unique)){
   Rich_sub<-Rich_sub[sample(nrow(Rich_sub), 1), ]
   Rich_samp<-rbind(Rich_sub,Rich_samp)
 }
-Model0_Vol<-rma.mv(yi,vi,mods=~1,random=list(~ 1 | Rare),method="ML",data=Rich_samp)
-Model1_Vol<-rma.mv(yi,vi,mods=~Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
-Model2_Vol<-rma.mv(yi,vi,mods=~Method,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
-Model3_Vol<-rma.mv(yi,vi,mods=~Method*Vol_std,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
-Model4_Vol<-rma.mv(yi,vi,mods=~Age_std,random=list( ~ 1 | Rare),method="ML",data=Rich_samp)
-Model_AIC<-data.frame(AICc=c(Model0_Vol$fit.stats$ML[5],Model1_Vol$fit.stats$ML[5],Model2_Vol$fit.stats$ML[5],Model3_Vol$fit.stats$ML[5],Model4_Vol$fit.stats$ML[5]))
+Model0_Vol<-rma.mv(yi,vi,mods=~1,random=list(~ 1 | Rare,~ 1| DBH),method="ML",data=Rich_samp)
+Model1_Vol<-rma.mv(yi,vi,mods=~Vol_std,random=list( ~ 1 | Rare,~ 1| DBH),method="ML",data=Rich_samp)
+Model2_Vol<-rma.mv(yi,vi,mods=~Method,random=list( ~ 1 | Rare,~ 1| DBH),method="ML",data=Rich_samp)
+Model3_Vol<-rma.mv(yi,vi,mods=~Age_std,random=list( ~ 1 | Rare,~ 1| DBH),method="ML",data=Rich_samp)
+Model_AIC<-data.frame(AICc=c(Model0_Vol$fit.stats$ML[5],Model1_Vol$fit.stats$ML[5],Model2_Vol$fit.stats$ML[5],Model3_Vol$fit.stats$ML[5]))
 Model_AIC$Vars<-c("Null","Volume",
-                  "Method","Volume*Method","Age")
-Model_AIC$dev<-c(deviance(Model0_Vol),deviance(Model1_Vol),deviance(Model2_Vol),deviance(Model3_Vol),deviance(Model4_Vol))
+                  "Method","Age")
+Model_AIC$dev<-c(deviance(Model0_Vol),deviance(Model1_Vol),deviance(Model2_Vol),deviance(Model3_Vol))
 Null_log<-deviance(Model0_Vol)
 Model_AIC$R2<-1-(Model_AIC$dev/Null_log)
 Model_AIC<-Model_AIC[order(Model_AIC$AICc),] #reorder from lowest to highest
@@ -113,15 +113,15 @@ Model_AIC$delta<-Model_AIC$AICc-Model_AIC$AICc[1]#calculate AICc delta
 Model_AIC$rel_lik<-exp((Model_AIC$AICc[1]-Model_AIC$AICc)/2)#calculate the relative likelihood of model
 Model_AIC$weight<-Model_AIC$rel_lik/(sum(Model_AIC$rel_lik))
 Model_AIC$Run<-i
-Model_AIC$Rank<-seq(1,5,1)
+Model_AIC$Rank<-seq(1,4,1)
 Model_AIC_summary<-rbind(Model_AIC,Model_AIC_summary)
 }
 
 head(Model_AIC_summary)
 Model_AIC_summary$Rank1<-ifelse(Model_AIC_summary$Rank==1,1,0)
 
-
-Model_sel_boot<-ddply(Model_AIC_summary,.(Vars),summarise,Modal_rank=Mode(Rank),Prop_rank=sum(Rank1)/10000,log_liklihood=median(logLik),AICc_med=median(AICc),
+summary(Model_AIC_summary)
+Model_sel_boot<-ddply(Model_AIC_summary,.(Vars),summarise,Prop_rank=sum(Rank1)/10000,AICc_med=median(AICc),
       delta_med=median(delta),R2_med=median(R2))
 
 write.table(Model_sel_boot,file="Tables/Rich_vol_model_sel.csv",sep=",")
@@ -140,7 +140,7 @@ for (i in 1:10000){
     Rich_sub<-Rich_sub[sample(nrow(Rich_sub), 1), ]
     Rich_samp<-rbind(Rich_sub,Rich_samp)
   }
-  Model1_Vol<-rma.mv(yi,vi,mods=~Vol,random=list( ~ 1 | Rare),method="REML",data=Rich_samp)
+  Model1_Vol<-rma.mv(yi,vi,mods=~Vol,random=list(~ 1 | Rare,~ 1| DBH),method="REML",data=Rich_samp)
   Param_vals<-data.frame(Parameter=c("Intercept","Vol_slope"),estimate=coef(summary(Model1_Vol))[1],se=coef(summary(Model1_Vol))[2],
              pval=coef(summary(Model1_Vol))[4],ci_lb=coef(summary(Model1_Vol))[5],ci_ub=coef(summary(Model1_Vol))[6])
   Param_boot<-rbind(Param_vals,Param_boot)

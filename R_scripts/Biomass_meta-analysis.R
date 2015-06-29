@@ -4,7 +4,7 @@
 #######################################################################################
 
 #name: Phil Martin
-#date:28/04/2015
+#date:29/06/2015
 
 #clear objects
 rm(list=ls())
@@ -27,56 +27,32 @@ Mode <- function(x) {
 ###########################################################################################
 AGB<-read.csv("Data/AGB.csv")
 
-#recalculate SDs
-#unlogged
+#recalculate Standard deviations depending on the error type used in the paper
+#unlogged sites
 AGB$SDU<-ifelse(AGB$VarT=="SE",AGB$VU*sqrt(AGB$SSU),AGB$VU)
 AGB$SDU<-ifelse(AGB$VarT=="CI",(AGB$VU/1.96)*sqrt(AGB$SSU),AGB$SDU)
-
-#logged
+#logged sites
 AGB$SDL<-ifelse(AGB$VarT=="SE",AGB$VL*sqrt(AGB$SSL),AGB$VL)
 AGB$SDL<-ifelse(AGB$VarT=="CI",(AGB$VL/1.96)*sqrt(AGB$SSL),AGB$SDL)
-head(AGB)
-
-#calculate effect sizes
-#log ratio
-ROM<-escalc(data=AGB,measure="MD",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
-ROM
+#calculate log ratio effect size
+ROM<-escalc(data=AGB,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
 
 
 #########################################################################################
 #imputation of standard deviations#######################################################
 #########################################################################################
 
-#now calculate cv based on plot size
+#now calculate coeffient of variation based on plot size
 Rom_plot<-subset(ROM,Plot_size>0&SDU>0&!is.na(vi))
 Rom_plot$U_CV<-Rom_plot$SDU/Rom_plot$MU
 Rom_plot$L_CV<-Rom_plot$SDL/Rom_plot$ML
 
-
-plot(Rom_plot$Plot_size,log(Rom_plot$U_CV))
-plot(Rom_plot$Plot_size,log(Rom_plot$L_CV))
-
-#first model cv for unlogged plots
-par(mfrow=c(2,2))
+#now model coefficient of varion for unlogged plots so it can be estimated where SE is not reported
 Plot_UL1<-lm(U_CV~Plot_size+I(Plot_size^2),data=Rom_plot)
 Plot_UL2<-lm(U_CV~log(Plot_size),data=Rom_plot)
-summary(Plot_UL2)
-
-par(mfrow=c(1,1))
-plot(Rom_plot$Plot_size,Rom_plot$U_CV)
-points(Rom_plot$Plot_size,predict(Plot_UL2),col="red")
-
-#now for logged plots
+#now model coefficient of varion for logged plots
 Plot_ML2<-lm(L_CV~log(Plot_size),data=Rom_plot)
-summary(Plot_ML2)
-par(mfrow=c(1,1))
-plot(Rom_plot$Plot_size,Rom_plot$L_CV)
-points(Rom_plot$Plot_size,predict(Plot_ML2),col="red")
-
-
-#now create loop to fill in gaps
-head(AGB)
-
+#now use a loop to predict coeffient of variation where no SE was reported
 for (i in 1:nrow(AGB)){
   AGB$SDL[i]<-ifelse(AGB$Plot_size[i]<=4&is.na(AGB$SDU[i]),(0.13333+(-0.17945*(log(AGB$Plot_size[i]))))*AGB$ML,AGB$SDU[i])
   AGB$SDU[i]<-ifelse(AGB$Plot_size[i]<=4&is.na(AGB$SDU[i]),(0.13870+(-0.12938*(log(AGB$Plot_size[i]))))*AGB$MUL,AGB$SDU[i]) 
@@ -84,34 +60,29 @@ for (i in 1:nrow(AGB)){
   AGB$SDL[i]<-ifelse(AGB$Plot_size[i]>=4&is.na(AGB$SDU[i]),0.1*AGB$ML,AGB$SDL[i]) 
 }
 
-
 #################################################################################
 #analysis of the effect of volume on post logging biomass########################
 #################################################################################
-
-#subset data to remove those without vol
+#subset the dataset to remove studies without measure of logging intensity
 AGB_vol<-subset(AGB,Vol2>0)
-
 #log ratio effect size calculation for results with volume
 ROM2<-escalc(data=AGB_vol,measure="ROM",m2i=MU,sd2i=SDU,n2i=SSU,m1i=ML,sd1i=SDL,n1i=SSL,append=T)
 ROM2<-subset(ROM2,!is.na(vi))
 write.csv(ROM2,"Data/AGB_studies_vol.csv")
-
-#replace conventional with 1 and RIl with 0
+#replace conventional with 1 and RIL with 0
 ROM2$Method2<-as.factor(ifelse(ROM2$Method=="Conventional",1,0))
 
-
-#different models relating volume and method to post logging change
+#boostrap different models relating intensity, method and age to post logging change in biomass
 Site_unique<-unique(ROM2$MU)
 Model_AIC_summary<-NULL
-for (i in 1:10000){
+for (i in 1:10000){ #boostrap 10,000 times
   print(i)
   AGB_samp<-NULL
-  for (j in 1:length(Site_unique)){
+  for (j in 1:length(Site_unique)){#sample one site for each study so that no reference site is used more than once
     AGB_sub<-subset(ROM2,MU==Site_unique[j])
-    AGB_sub<-AGB_sub[sample(nrow(AGB_sub), 1), ]
+    AGB_sub<-AGB_sub[sample(nrow(AGB_sub), 1), ] 
     AGB_samp<-rbind(AGB_sub,AGB_samp)
-  }
+  } #run different models with the subsampled data
   Model0<-rma.mv(yi,vi,mods=~1,random=list(~1|Study,~1|Age),method="ML",data=AGB_samp)
   Model1<-rma.mv(yi,vi,mods=~Age,random=list(~1|Study,~1|Age),method="ML",data=AGB_samp)
   Model2<-rma.mv(yi,vi,mods=~Vol2,random=list(~1|Study,~1|Age),method="ML",data=AGB_samp)
@@ -122,45 +93,44 @@ for (i in 1:10000){
   Model7<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2)*Method,random=list(~1|Study,~1|Age),method="ML",data=AGB_samp)
   Model8<-rma.mv(yi,vi,mods=~Vol2*Age,random=list(~1|Study,~1|Age),method="ML",data=AGB_samp)
   Model9<-rma.mv(yi,vi,mods=~Vol2*Method+I(Vol2^2),random=list(~1|Study),method="ML",data=AGB_samp)
-  Model_AIC<-data.frame(AICc=c(Model0$fit.stats$ML[5],Model1$fit.stats$ML[5],Model2$fit.stats$ML[5],
+  Model_AIC<-data.frame(AICc=c(Model0$fit.stats$ML[5],Model1$fit.stats$ML[5],Model2$fit.stats$ML[5],#produce AICc values for the models
                                Model3$fit.stats$ML[5],Model4$fit.stats$ML[5],Model5$fit.stats$ML[5],
                                Model6$fit.stats$ML[5],Model7$fit.stats$ML[5],Model8$fit.stats$ML[5],
                                Model9$fit.stats$ML[5]))
-  Model_AIC$Vars<-c("Null","Age","Volume","Method","Volume*Method","Volume*Age+Volume*Method",
+  Model_AIC$Vars<-c("Null","Age","Volume","Method","Volume*Method","Volume*Age+Volume*Method", #details of model variables
                     "Voume+Volume^2","Volume*Method+Volume^2*Method","Volume*Age","Volume*Method+Vol^2")
-  Model_AIC$logLik<-c(Model0$fit.stats$ML[1],Model1$fit.stats$ML[1],Model2$fit.stats$ML[1],
+  Model_AIC$logLik<-c(Model0$fit.stats$ML[1],Model1$fit.stats$ML[1],Model2$fit.stats$ML[1],#put logLiklihood in the table
                        Model3$fit.stats$ML[1],Model4$fit.stats$ML[1],Model5$fit.stats$ML[1],
                        Model6$fit.stats$ML[1],Model7$fit.stats$ML[1],Model8$fit.stats$ML[1],
                        Model9$fit.stats$ML[1])
   Null_dev<-deviance(Model0)
-  Dev<-c(deviance(Model0),deviance(Model1),deviance(Model2),deviance(Model3),deviance(Model4),deviance(Model5),
+  Dev<-c(deviance(Model0),deviance(Model1),deviance(Model2),deviance(Model3),deviance(Model4),deviance(Model5),#calculate deviance of models
            deviance(Model6),deviance(Model7),deviance(Model8),deviance(Model9))
-  Model_AIC$R2<-1-(Dev/Null_dev)
+  Model_AIC$R2<-1-(Dev/Null_dev) #calculate pseudo-r squared using model deviance
   Model_AIC$R2<-ifelse(Model_AIC$R2<0,0,Model_AIC$R2)
   Model_AIC<-Model_AIC[order(Model_AIC$AICc),] #reorder from lowest to highest
   Model_AIC$delta<-Model_AIC$AICc-Model_AIC$AICc[1]#calculate AICc delta
   Model_AIC$rel_lik<-exp((Model_AIC$AICc[1]-Model_AIC$AICc)/2)#calculate the relative likelihood of model
   Model_AIC$weight<-Model_AIC$rel_lik/(sum(Model_AIC$rel_lik))
   Model_AIC$Run<-i
-  Model_AIC$Rank<-seq(1,10,1)
+  Model_AIC$Rank<-seq(1,10,1) #rank models from 1-10 in terms of parsimony
   Model_AIC_summary<-rbind(Model_AIC,Model_AIC_summary)
 }
-
-head(Model_AIC_summary)
 Model_AIC_summary$Rank1<-ifelse(Model_AIC_summary$Rank==1,1,0)
 
+#summarise the boostrapping routine by giving median values for model statistics - log liklihood, AICc delta AICc, R squared
 Model_sel_boot<-ddply(Model_AIC_summary,.(Vars),summarise,Modal_rank=Mode(Rank),Prop_rank=sum(Rank1)/10000,log_liklihood=median(logLik),AICc_med=median(AICc),
                       delta_med=median(delta),R2_med=median(R2))
-
+#write this summary table to file
 write.csv(Model_sel_boot,file="Tables/AGB_mod_sel.csv")
 
-#now bootstrap to give predictions
+#now boostrap the top model to get parameter estimates
 Site_unique<-unique(ROM2$MU)
 Param_boot<-NULL
-for (i in 1:10){
+for (i in 1:10000){
   print(i)
   AGB_samp<-NULL
-  for (j in 1:length(Site_unique)){
+  for (j in 1:length(Site_unique)){#use same routine as previously to subsample dataset avoiding pseudo-replication
     AGB_sub<-subset(ROM2,MU==Site_unique[j])
     AGB_sub<-AGB_sub[sample(nrow(AGB_sub), 1), ]
     AGB_samp<-rbind(AGB_sub,AGB_samp)
@@ -171,35 +141,16 @@ for (i in 1:10){
   Param_boot<-rbind(Param_vals,Param_boot)
 }
 
+#produce summary of parameter estimates
 Param_boot_sum<-ddply(Param_boot,.(Parameter),summarise,coef_estimate=median(estimate),lower=median(ci.lb),
                       upper=median(ci.ub),med_pval=median(pval),se=median(se))
-
+#write this table of parameter estimates
 write.table(Param_boot_sum,file="Tables/Biomass_parameter_estimates.csv",sep=",")
 
-ddply(ROM2,.(Method),summarise,maxvol=max(Vol2),min_vol=min(Vol2))
 #create dataframe for predictions
 newdat<-data.frame(Vol=seq(5.7,179,length.out=500))
 newdat$yi<-Param_boot_sum$coef_estimate[1]+(newdat$Vol*Param_boot_sum$coef_estimate[2])
 newdat$UCI<-(Param_boot_sum$upper[1])+(Param_boot_sum$upper[2]*newdat$Vol)
 newdat$LCI<-(Param_boot_sum$lower[1])+(Param_boot_sum$lower[2]*newdat$Vol)
-
+#wirte predictions to file
 write.csv(newdat,"Data/Preds_AGB.csv",row.names=F)
-
-######################################################
-#start here just to plot the figure###################
-######################################################
-
-
-#plot results
-#first create x axis labels
-Vol_ax<-(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))
-theme_set(theme_bw(base_size=16))
-vol_plot<-ggplot(newdat,aes(x=Vol,y=exp(yi)-1,ymax=exp(UCI)-1,ymin=exp(LCI)-1))+geom_ribbon(alpha=0.2)+geom_line(size=1)
-vol_plot2<-vol_plot+geom_point(data=ROM2,aes(ymax=NULL,ymin=NULL,colour=Method,size=1/vi),shape=1)
-vol_plot3<-vol_plot2+ylab("Proportional change in aboveground \nbiomass following logging")
-vol_plot4<-vol_plot3+scale_size_continuous(range=c(5,10))+geom_hline(y=0,lty=2,size=1)
-vol_plot5<-vol_plot4+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.border = element_rect(size=1.5,colour="black",fill=NA))
-vol_plot6<-vol_plot5+xlab(expression(paste("Volume of wood logged (",m^3,ha^-1,")")))+scale_colour_brewer(palette="Set1")
-rich_vol_plot<-vol_plot6+theme(legend.position="none")+scale_colour_brewer(palette="Set1")
-rich_vol_plot
-ggsave("Figures/AGB_volume.png",height=5,width=7,dpi=1200)

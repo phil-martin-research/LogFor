@@ -52,13 +52,15 @@ ms1$r2<-c(r.squaredGLMM(M3)[1],r.squaredGLMM(M1)[1],r.squaredGLMM(M2)[1],r.squar
           r.squaredGLMM(M6)[1],r.squaredGLMM(M7)[1],r.squaredGLMM(M5)[1],r.squaredGLMM(M0)[1])
 ms2<-subset(ms1,delta<=7)
 
+
 #write this table to csv
 write.csv(ms1,"Tables/Tree_damage_models.csv")
 
 # extract coefficients
-summary(model.avg(ms2))
 
-coefs <- data.frame(coef(summary(M2)))
+Model.av<-model.avg(ms2)
+
+summary(Model.av) # take values from conditional average
 # use normal distribution to approximate p-value
 coefs$p.z <- 2 * (1 - pnorm(abs(coefs$t.value)))
 coefs
@@ -70,8 +72,7 @@ newdat<-data.frame(Vol=c(seq(3,164.9,length.out = 500),seq(5,107,length.out = 50
 newdat$Vol_log<-log(newdat$Vol)
 newdat$Prop_dam<-0
 mm <- model.matrix(terms(M2),newdat)
-newdat$Prop_dam <- predict(M2,newdat,re.form=NA)
-## or newdat$distance <- mm %*% fixef(fm1)
+newdat$Prop_dam <- predict(Model.av,newdat,re.form=NA)
 pvar1 <- diag(mm %*% tcrossprod(vcov(M2),mm))
 tvar1 <- pvar1+VarCorr(M2)$Study[1]  ## must be adapted for more complex models
 tvar1 <- 
@@ -85,7 +86,6 @@ tvar1 <-
 
 
 #plot these results
-
 theme_set(theme_bw(base_size=12))
 Dam_1<-ggplot(Dam,aes(x=Vol,y=Prop_dam,colour=Method))+geom_point(shape=1)+geom_line(data=newdat,aes(x=Vol,y=plogis(Prop_dam),colour=Method),size=2)
 Dam_2<-Dam_1+geom_ribbon(data=newdat,aes(ymax=plogis(phi),ymin=plogis(plo),fill=Method,size=NULL),colour=NA,alpha=0.2)+ylim(0,0.7)
